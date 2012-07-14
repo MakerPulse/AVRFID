@@ -15,15 +15,14 @@
 
 
 //20-bit manufacturer code,
-//8-bit site code
-//16-bit unique id
-
 #define MANUFACTURER_ID_OFFSET 0
 #define MANUFACTURER_ID_LENGTH 20
 
+//8-bit site code
 #define SITE_CODE_OFFSET 20
 #define SITE_CODE_LENGTH 8
-	 
+
+//16-bit unique id
 #define UNIQUE_ID_OFFSET 28
 #define UNIQUE_ID_LENGTH 16
 
@@ -57,18 +56,20 @@ volatile int on;        // stores the value of DEMOD_OUT in the interrupt
 | interrupt to fill the buffer before analizing the gathered data             |
 \*****************************************************************************/
 void setup () {
-  //------------------------------------------
-  // VARIABLE INITLILIZATION
-  //------------------------------------------
   
-  //==========> PIN INITILIZATION <==========//
+  ///////////// PIN INITILIZATION /////////////
   DDRD = 0x00; // 00000000 configure output on port D
   DDRB = 0x1E; // 00011100 configure output on port B
   
   // USART INITILIZATION
   Serial.begin(9600);
+  Serial.println("Finished setup");
+  Serial1.begin(9600);
+  Serial1.println("Serial  1");
+  //Serial2.begin(9600);
+  //Serial2.println("Serial 2");
   
-  //========> VARIABLE INITILIZATION <=======//
+  /////////// VARIABLE INITILIZATION //////////
   count = 0;
   begin = (char *) malloc (sizeof(char)*ARRAYSIZE);
   iter = 0;
@@ -76,22 +77,27 @@ void setup () {
     begin[i] = 0;
   }
   
-  //=======> INTERRUPT INITILAIZATION <======//
-  sei ();       // enable global interrupts
-  EICRA = 0x03; // configure interupt INT0
-  EIMSK = 0x01; // enabe interrupt INT0
+  ////////// INTERRUPT INITILAIZATION /////////
+  //sei ();       // enable global interrupts
+  //EICRA = 0x03; // configure interupt INT0
+  //EIMSK = 0x01; // enabe interrupt INT0
+  Serial.println("Finished setup");
 }
+
 void loop () {
-  sei(); //enable interrupts
+  //sei(); //enable interrupts
+  interrupts();
   
   while (1) { // while the card is being read
+    Serial.println(iter);
     if (iter >= ARRAYSIZE) { // if the buffer is full
-      cli(); // disable interrupts
+      //cli(); // disable interrupts
+      noInterrupts();
       break; // continue to analize the buffer
     }
   }  
-  
-  PORTB &= ~0x1C;
+  Serial.println("Finished array");
+  //PORTB &= ~0x1C;
   
   //analize the array of input
   analizeInput ();
@@ -112,7 +118,9 @@ void loop () {
 | 2) Add one to the count (count stores the number of 125kHz pulses in each    |
 |     wave                                                                     |
 \******************************************************************************/
-ISR(INT0_vect) {
+//ISR(INT0_vect) {
+void interrupt(){
+  /*
   //Save the value of DEMOD_OUT to prevent re-reading on the same group
   on =(PINB & 0x01);
   // if wave is rising (end of the last wave)
@@ -122,6 +130,7 @@ ISR(INT0_vect) {
     count = 0;
     iter = iter + 1;
   }
+  */
   count = count + 1;
   lastpulse = on;
 }
