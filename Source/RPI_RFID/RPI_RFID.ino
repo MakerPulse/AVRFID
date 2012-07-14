@@ -76,7 +76,7 @@ volatile int on;        // stores the value of DEMOD_OUT in the interrupt
 \*****************************************************************************/
 void addNames(void) {
   namesize = 2; // number of IDs in the access list
-  names = malloc (sizeof(int) * namesize);
+  names = (int *)malloc (sizeof(int) * namesize);
   // change or add more IDs after this point
   names [0] = 12345;
   names [1] = 56101;
@@ -104,52 +104,6 @@ ISR(INT0_vect) {
   lastpulse = on;
 }
 
-/************************************ WAIT ************************************\
-| A generic wait function                                                      |
-\******************************************************************************/
-void wait (unsigned long time) {
-  long i;
-  for (i = 0; i < time; i++) {
-    asm volatile ("nop");
-  }
-}
-
-  //////////////////////////////////////////////////////////////////////////////
- //////////////////////////// SERIAL COMMUNICATION ////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-
-/******************************** USART CONFIG ********************************\
-| USART_Init(void) initilizes the USART feature, this function needs to be run |
-| before any USART functions are used, this function configures the BAUD rate  |
-| for the USART and enables the format for transmission                        |
-\******************************************************************************/
-#define FOSC 8000000 // Clock Speed of the procesor
-#define BAUD 19200    // Baud rate (to change the BAUD rate change this variable
-#define MYUBRR FOSC/16/BAUD-1 // calculate the number the processor needs
-void USART_Init(void) {
-  unsigned int ubrr = MYUBRR;
-  /*Set baud rate */
-  UBRR0H = (unsigned char)(ubrr>>8);
-  UBRR0L = (unsigned char)ubrr;
-  /*Enable receiver and transmitter */
-  UCSR0B = (1<<RXEN0)|(1<<TXEN0);
-  /* Set frame format: 8data, 2stop bit */
-  UCSR0C = (1<<USBS0)|(3<<UCSZ00);
-}
-
-/******************************* USART_Transmit *******************************\
-| The USART_Transmit(int) function allows you to send numbers to USART serial  |
-| This function only handles numbers up to two digits. If there is one digit   |
-| the message contains a space, then the digit converted to ascii. If there    |
-| are two digits then the message is the first digit followed by the seccond   |
-| If the input is negative then the function will output a newline character   |
-\******************************************************************************/
-void USART_Transmit(char input )
-{
-  while ( !( UCSR0A & (1<<UDRE0)) );
-  // Put the value into the regester to send
-  UDR0 = input;
-}
   //////////////////////////////////////////////////////////////////////////////
  ////////////////////////// BASE CONVERSION FUNCTIONS /////////////////////////
 //////////////////////////////////////////////////////////////////////////////
@@ -197,7 +151,7 @@ int getDecimalFromBinary (int * array, int length) {
 void recurseDecimal (unsigned int val) {
   if (val > 0 ) {
     recurseDecimal(val/10);
-    USART_Transmit('0'+val%10);
+    Serial.print('0'+val%10);
   }
   return;
 }
@@ -210,7 +164,7 @@ void printDecimal (int array[45]) {
   #endif
   
   #ifdef Split_Tags_With
-    USART_Transmit(Split_Tags_With);
+    Serial.print(Split_Tags_With);
   #endif
   
   #ifdef Site_Code_Output
@@ -220,7 +174,7 @@ void printDecimal (int array[45]) {
   #endif
 
   #ifdef Split_Tags_With
-    USART_Transmit(Split_Tags_With);
+    Serial.print(Split_Tags_With);
   #endif
 
   #ifdef Unique_Id_Output
@@ -228,38 +182,38 @@ void printDecimal (int array[45]) {
   recurseDecimal(lastId);
   #endif
   
-  USART_Transmit('\r');
-  USART_Transmit('\n');
+  Serial.print('\r');
+  Serial.print('\n');
 }
 void printHexadecimal (int array[45]) {
   int i;
   #ifdef Manufacturer_ID_Output
   for (i = MANUFACTURER_ID_OFFSET; i < MANUFACTURER_ID_OFFSET+MANUFACTURER_ID_LENGTH; i+=4) {
-    USART_Transmit(binaryTohex(array[i],array[i+1],array[i+2],array[i+3]));
+    Serial.print(binaryTohex(array[i],array[i+1],array[i+2],array[i+3]));
   }
   #endif
   
   #ifdef Split_Tags_With
-    USART_Transmit(Split_Tags_With);
+    Serial.print(Split_Tags_With);
   #endif
   
   #ifdef Site_Code_Output
   for (i = SITE_CODE_OFFSET; i < SITE_CODE_OFFSET+SITE_CODE_LENGTH; i+=4) {
-    USART_Transmit(binaryTohex(array[i],array[i+1],array[i+2],array[i+3]));
+    Serial.print(binaryTohex(array[i],array[i+1],array[i+2],array[i+3]));
   }
   #endif
 
   #ifdef Split_Tags_With
-    USART_Transmit(Split_Tags_With);
+    Serial.print(Split_Tags_With);
   #endif
 
   #ifdef Unique_Id_Output
   for (i = UNIQUE_ID_OFFSET; i < UNIQUE_ID_OFFSET+UNIQUE_ID_LENGTH; i+=4) {
-    USART_Transmit(binaryTohex(array[i],array[i+1],array[i+2],array[i+3]));
+    Serial.print(binaryTohex(array[i],array[i+1],array[i+2],array[i+3]));
   }
   #endif
-  USART_Transmit('\r');
-  USART_Transmit('\n');
+  Serial.print('\r');
+  Serial.print('\n');
 }
 
 
@@ -268,31 +222,31 @@ void printBinary (int array[45]) {
   int i;
   #ifdef Manufacturer_ID_Output
   for (i = MANUFACTURER_ID_OFFSET; i < MANUFACTURER_ID_OFFSET+MANUFACTURER_ID_LENGTH; i++) {
-    USART_Transmit('0'+array[i]);
+    Serial.print('0'+array[i]);
   }
   #endif
   
   #ifdef Split_Tags_With
-    USART_Transmit(Split_Tags_With);
+    Serial.print(Split_Tags_With);
   #endif
   
   #ifdef Site_Code_Output
   for (i = SITE_CODE_OFFSET; i < SITE_CODE_OFFSET+SITE_CODE_LENGTH; i++) {
-    USART_Transmit('0'+array[i]);
+    Serial.print('0'+array[i]);
   }
   #endif
 
   #ifdef Split_Tags_With
-    USART_Transmit(Split_Tags_With);
+    Serial.print(Split_Tags_With);
   #endif
 
   #ifdef Unique_Id_Output
   for (i = UNIQUE_ID_OFFSET; i < UNIQUE_ID_OFFSET+UNIQUE_ID_LENGTH; i++) {
-    USART_Transmit('0'+array[i]);
+    Serial.print('0'+array[i]);
   }
   #endif
-  USART_Transmit('\r');
-  USART_Transmit('\n');
+  Serial.print('\r');
+  Serial.print('\n');
 }
 
 
@@ -337,11 +291,11 @@ void whiteListSuccess () {
     }
   }
   OCR1A = 0;
-  wait (5000);
+  delay (5000);
 }
 void whiteListFailure () {
   PORTB |= 0x08;
-  wait (5000);
+  delay (5000);
 }
 
 
@@ -555,11 +509,11 @@ int main (void) {
   OCR1A = 0;
   
   // USART INITILIZATION
-  USART_Init();
+  Serial.begin(9600);
   
   //========> VARIABLE INITILIZATION <=======//
   count = 0;
-  begin = malloc (sizeof(char)*ARRAYSIZE);
+  begin = (char *) malloc (sizeof(char)*ARRAYSIZE);
   iter = 0;
   for (i = 0; i < ARRAYSIZE; i ++) {
     begin[i] = 0;
