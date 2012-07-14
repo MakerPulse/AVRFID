@@ -68,11 +68,6 @@ void setup () {
   DDRD = 0x00; // 00000000 configure output on port D
   DDRB = 0x1E; // 00011100 configure output on port B
   
-  
-  // Set on match, clear on TOP
-  TCCR1A  = ((1 << COM1A1) | (1 << COM1A0));
-  TCCR1B  = ((1 << CS11) | (1 << WGM13));
-  
   // USART INITILIZATION
   Serial.begin(9600);
   
