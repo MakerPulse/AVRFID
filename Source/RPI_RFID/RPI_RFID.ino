@@ -1,6 +1,73 @@
 void setup () {
+  int i = 0;
+
+  //------------------------------------------
+  // VARIABLE INITLILIZATION
+  //------------------------------------------
+
+  // Load the list of valid ID tags
+  addNames(); 
+  
+  //==========> PIN INITILIZATION <==========//
+  DDRD = 0x00; // 00000000 configure output on port D
+  DDRB = 0x1E; // 00011100 configure output on port B
+  
+  //=========> SERVO INITILIZATION <=========//
+  ICR1 = 10000;// TOP count for the PWM TIMER
+  
+  // Set on match, clear on TOP
+  TCCR1A  = ((1 << COM1A1) | (1 << COM1A0));
+  TCCR1B  = ((1 << CS11) | (1 << WGM13));
+  
+  // Move the servo to close Position
+  OCR1A = 10000 - SERVO_CLOSE;
+  {
+    unsigned long j;
+    for (j = 0; j < 500000; j++) {
+      asm volatile ("nop");
+    }
+  }
+  // Set servo to idle
+  OCR1A = 0;
+  
+  // USART INITILIZATION
+  Serial.begin(9600);
+  
+  //========> VARIABLE INITILIZATION <=======//
+  count = 0;
+  begin = (char *) malloc (sizeof(char)*ARRAYSIZE);
+  iter = 0;
+  for (i = 0; i < ARRAYSIZE; i ++) {
+    begin[i] = 0;
+  }
+  
+  //=======> INTERRUPT INITILAIZATION <======//
+  sei ();       // enable global interrupts
+  EICRA = 0x03; // configure interupt INT0
+  EIMSK = 0x01; // enabe interrupt INT0
 }
 void loop () {
+    sei(); //enable interrupts
+    
+    while (1) { // while the card is being read
+      if (iter >= ARRAYSIZE) { // if the buffer is full
+        cli(); // disable interrupts
+        break; // continue to analize the buffer
+      }
+    }  
+    
+    PORTB &= ~0x1C;
+    
+    //analize the array of input
+    analizeInput ();
+    
+    //reset the saved values to prevent errors when reading another card
+    count = 0;
+    iter = 0;
+    for (i = 0; i < ARRAYSIZE; i ++) {
+      begin[i] = 0;
+    }
+  }
 }
 
 ///////////////// AVRFID CODE /////////////////////
@@ -476,77 +543,4 @@ void analizeInput (void) {
 | This is the main function, it initilized the variabls and then waits for    |
 | interrupt to fill the buffer before analizing the gathered data             |
 \*****************************************************************************/
-int main (void) {
-  int i = 0;
 
-  //------------------------------------------
-  // VARIABLE INITLILIZATION
-  //------------------------------------------
-
-  // Load the list of valid ID tags
-  addNames(); 
-  
-  //==========> PIN INITILIZATION <==========//
-  DDRD = 0x00; // 00000000 configure output on port D
-  DDRB = 0x1E; // 00011100 configure output on port B
-  
-  //=========> SERVO INITILIZATION <=========//
-  ICR1 = 10000;// TOP count for the PWM TIMER
-  
-  // Set on match, clear on TOP
-  TCCR1A  = ((1 << COM1A1) | (1 << COM1A0));
-  TCCR1B  = ((1 << CS11) | (1 << WGM13));
-  
-  // Move the servo to close Position
-  OCR1A = 10000 - SERVO_CLOSE;
-  {
-    unsigned long j;
-    for (j = 0; j < 500000; j++) {
-      asm volatile ("nop");
-    }
-  }
-  // Set servo to idle
-  OCR1A = 0;
-  
-  // USART INITILIZATION
-  Serial.begin(9600);
-  
-  //========> VARIABLE INITILIZATION <=======//
-  count = 0;
-  begin = (char *) malloc (sizeof(char)*ARRAYSIZE);
-  iter = 0;
-  for (i = 0; i < ARRAYSIZE; i ++) {
-    begin[i] = 0;
-  }
-  
-  //=======> INTERRUPT INITILAIZATION <======//
-  sei ();       // enable global interrupts
-  EICRA = 0x03; // configure interupt INT0
-  EIMSK = 0x01; // enabe interrupt INT0
-  
-  //------------------------------------------
-  // MAIN LOOP
-  //------------------------------------------
-  while (1) {
-    sei(); //enable interrupts
-    
-    while (1) { // while the card is being read
-      if (iter >= ARRAYSIZE) { // if the buffer is full
-        cli(); // disable interrupts
-        break; // continue to analize the buffer
-      }
-    }  
-    
-    PORTB &= ~0x1C;
-    
-    //analize the array of input
-    analizeInput ();
-    
-    //reset the saved values to prevent errors when reading another card
-    count = 0;
-    iter = 0;
-    for (i = 0; i < ARRAYSIZE; i ++) {
-      begin[i] = 0;
-    }
-  }
-}
