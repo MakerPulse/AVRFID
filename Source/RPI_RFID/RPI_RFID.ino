@@ -60,9 +60,6 @@ void setup () {
   //------------------------------------------
   // VARIABLE INITLILIZATION
   //------------------------------------------
-
-  // Load the list of valid ID tags
-  addNames(); 
   
   //==========> PIN INITILIZATION <==========//
   DDRD = 0x00; // 00000000 configure output on port D
@@ -105,21 +102,6 @@ void loop () {
   for (int i = 0; i < ARRAYSIZE; i ++) {
     begin[i] = 0;
   }
-}
-
-
-
-/********************************* ADD NAMES *********************************\
-| This function add allocates the ammount of memory that will be needed to    |
-| store the list of names, and adds all the saved names to the allocated      |
-| memory for use later in the program                                         |
-\*****************************************************************************/
-void addNames(void) {
-  namesize = 2; // number of IDs in the access list
-  names = (int *)malloc (sizeof(int) * namesize);
-  // change or add more IDs after this point
-  names [0] = 12345;
-  names [1] = 56101;
 }
 
 /******************************* INT0 INTERRUPT *******************************\
