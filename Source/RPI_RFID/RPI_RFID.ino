@@ -13,11 +13,6 @@
 
 #define Split_Tags_With '-'       // The character to split tags pieces with
 
-#define Whitelist_Enabled         // When a tag is read it will be compaired 
-                                  // against a whitelist and one of two functions
-                                  // will be run depending on if the id matches
-        
-
 
 //20-bit manufacturer code,
 //8-bit site code
@@ -73,8 +68,6 @@ void setup () {
   DDRD = 0x00; // 00000000 configure output on port D
   DDRB = 0x1E; // 00011100 configure output on port B
   
-  //=========> SERVO INITILIZATION <=========//
-  ICR1 = 10000;// TOP count for the PWM TIMER
   
   // Set on match, clear on TOP
   TCCR1A  = ((1 << COM1A1) | (1 << COM1A0));
