@@ -1,5 +1,3 @@
-///////////////// AVRFID CODE /////////////////////
-/////////// to be ported to arduino 1.0////////////
 /******************************* CUSTOM SETTINGS ******************************\
 | Settings that can be changed, comment or uncomment these #define settings to |
 | make the AVRFID code do different things
@@ -58,6 +56,11 @@ volatile int count;     // counts 125kHz pulses
 volatile int lastpulse; // last value of DEMOD_OUT
 volatile int on;        // stores the value of DEMOD_OUT in the interrupt
 
+
+/******************************* MAIN FUNCTION *******************************\
+| This is the main function, it initilized the variabls and then waits for    |
+| interrupt to fill the buffer before analizing the gathered data             |
+\*****************************************************************************/
 void setup () {
   //------------------------------------------
   // VARIABLE INITLILIZATION
@@ -301,51 +304,11 @@ void printBinary (int array[45]) {
 
 
 
-/********************************* Search Tag *********************************\
-| This function searches for a tag in the list of tags stored in the flash     |
-| memory, if the tag is found then the function returns 1 (true) if the tag    |
-| is not found then the function returns 0 (false)                             |
-\******************************************************************************/
-int searchTag (int tag) {
-  int i;
-  for (i = 0; i < namesize; i++) {
-    if (tag == names[i]) {
-      return 1;
-    }
-  }
-  return 0;
-}
 
 
 
 
-void whiteListSuccess () {
-  PORTB |= 0x04;
-  // open the door
-  OCR1A = 10000 - SERVO_OPEN;
-  {
-    unsigned long i;
-    for (i = 0; i < 2500000; i++) {
-      if (!((PINB & (1<<7))>>7)) {
-        break;
-      }
-    }
-  }
-  //close the door
-  OCR1A = 10000 - SERVO_CLOSE;
-  {
-    unsigned long i;
-    for (i = 0; i < 500000; i++) {
-      asm volatile ("nop");
-    }
-  }
-  OCR1A = 0;
-  delay (5000);
-}
-void whiteListFailure () {
-  PORTB |= 0x08;
-  delay (5000);
-}
+
 
 
 
@@ -509,20 +472,4 @@ void analizeInput (void) {
   #ifdef Decimal_Tag_Output
     printDecimal (finalArray);
   #endif
-  
-  
-  #ifdef Whitelist_Enabled
-  if (searchTag(getDecimalFromBinary(finalArray+UNIQUE_ID_OFFSET,UNIQUE_ID_LENGTH))){
-    whiteListSuccess ();
-  }
-  else {
-    whiteListFailure();
-  }
-  #endif
 }
-
-/******************************* MAIN FUNCTION *******************************\
-| This is the main function, it initilized the variabls and then waits for    |
-| interrupt to fill the buffer before analizing the gathered data             |
-\*****************************************************************************/
-
