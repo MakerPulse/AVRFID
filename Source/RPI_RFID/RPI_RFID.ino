@@ -84,15 +84,15 @@ void setup () {
   EIMSK = 0x04; // enabe interrupt INT2
   Serial.println("Finished setup");
   pinMode(4,OUTPUT);
-  digitalWrite(4,HIGH);
+  digitalWrite(4,LOW);
+  pinMode(1,INPUT);
 }
 
 void loop () {
   sei(); //enable interrupts
   //__enable_interrupt();  
   while (1) { // while the card is being read
-    Serial.print(iter);
-    Serial.print("\r");
+    Serial.println(on);
     if (iter >= ARRAYSIZE) { // if the buffer is full
       cli(); // disable interrupts
       //__disable_interrupt();
@@ -124,9 +124,10 @@ void loop () {
 \******************************************************************************/
 ISR(INT2_vect) {
   //Save the value of DEMOD_OUT to prevent re-reading on the same group
-  on =(PINB & 0x01);
+  on =(PIND & 0x02);
+  //on = digitalRead(1);
   // if wave is rising (end of the last wave)
-  if (on == 1 && lastpulse == 0 ) {
+  if (on != 0 && lastpulse == 0 ) {
     // write the data to the array and reset the cound
     begin[iter] = count; 
     count = 0;
