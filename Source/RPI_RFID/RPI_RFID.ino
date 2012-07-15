@@ -78,20 +78,24 @@ void setup () {
   }
   
   ////////// INTERRUPT INITILAIZATION /////////
-  //sei ();       // enable global interrupts
-  //EICRA = 0x03; // configure interupt INT0
-  //EIMSK = 0x01; // enabe interrupt INT0
+  sei ();       // enable global interrupts
+  //__enable_interrupt();
+  EICRA = 0x30; // configure interupt INT2
+  EIMSK = 0x04; // enabe interrupt INT2
   Serial.println("Finished setup");
+  pinMode(4,OUTPUT);
+  digitalWrite(4,HIGH);
 }
 
 void loop () {
-  //sei(); //enable interrupts
-  interrupts();
-  
+  sei(); //enable interrupts
+  //__enable_interrupt();  
   while (1) { // while the card is being read
-    Serial.println(iter);
+    Serial.print(iter);
+    Serial.print("\r");
     if (iter >= ARRAYSIZE) { // if the buffer is full
-      //cli(); // disable interrupts
+      cli(); // disable interrupts
+      //__disable_interrupt();
       noInterrupts();
       break; // continue to analize the buffer
     }
@@ -118,9 +122,7 @@ void loop () {
 | 2) Add one to the count (count stores the number of 125kHz pulses in each    |
 |     wave                                                                     |
 \******************************************************************************/
-//ISR(INT0_vect) {
-void interrupt(){
-  /*
+ISR(INT2_vect) {
   //Save the value of DEMOD_OUT to prevent re-reading on the same group
   on =(PINB & 0x01);
   // if wave is rising (end of the last wave)
@@ -130,7 +132,6 @@ void interrupt(){
     count = 0;
     iter = iter + 1;
   }
-  */
   count = count + 1;
   lastpulse = on;
 }
