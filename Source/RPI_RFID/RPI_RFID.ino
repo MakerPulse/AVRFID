@@ -58,8 +58,8 @@ volatile int on;        // stores the value of DEMOD_OUT in the interrupt
 void setup () {
   
   ///////////// PIN INITILIZATION /////////////
-  DDRD = 0x00; // 00000000 configure output on port D
-  DDRB = 0x1E; // 00011100 configure output on port B
+  //DDRD = 0x00; // 00000000 configure output on port D
+  //DDRB = 0x1E; // 00011100 configure output on port B
   
   // USART INITILIZATION
   Serial.begin(9600);
@@ -85,18 +85,22 @@ void setup () {
   Serial.println("Finished setup");
   pinMode(4,OUTPUT);
   digitalWrite(4,LOW);
-  pinMode(1,INPUT);
+  //pinMode(1,INPUT);
+  DDRD &= 0xFC;
+  
 }
 
 void loop () {
   sei(); //enable interrupts
   //__enable_interrupt();  
   while (1) { // while the card is being read
-    Serial.println(on);
+    Serial.print(on);
+    Serial.print(" ");
+    Serial.println(count);
     if (iter >= ARRAYSIZE) { // if the buffer is full
       cli(); // disable interrupts
       //__disable_interrupt();
-      noInterrupts();
+      //noInterrupts();
       break; // continue to analize the buffer
     }
   }  
@@ -124,7 +128,7 @@ void loop () {
 \******************************************************************************/
 ISR(INT2_vect) {
   //Save the value of DEMOD_OUT to prevent re-reading on the same group
-  on =(PIND & 0x02);
+  on =(PIND & 0x04);
   //on = digitalRead(1);
   // if wave is rising (end of the last wave)
   if (on != 0 && lastpulse == 0 ) {
