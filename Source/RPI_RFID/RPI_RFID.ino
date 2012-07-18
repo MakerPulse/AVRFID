@@ -34,15 +34,16 @@
 #endif
 
 
-/// Begin the includes
+/// countBuffer the includes
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <stdlib.h>
 
-#define ARRAYSIZE 900   // Number of RF points to collect each time
+#define ARRAYSIZE 9   // Number of RF points to collect each time
+#define bufferType int
 
-char * begin;           // points to the bigining of the array
+bufferType * countBuffer;           // points to the bigining of the array
 int * names;            // array of valid ID numbers
 int namesize;           // size of array of valid ID numbers
 volatile int iter;      // the iterator for the placement of count in the array
@@ -64,39 +65,41 @@ void setup () {
   // USART INITILIZATION
   Serial.begin(9600);
   Serial.println("Finished setup");
-  Serial1.begin(9600);
-  Serial1.println("Serial  1");
-  //Serial2.begin(9600);
+  //Serial1.countBuffer(9600);
+  //Serial1.println("Serial  1");
+  //Serial2.countBuffer(9600);
   //Serial2.println("Serial 2");
   
   /////////// VARIABLE INITILIZATION //////////
   count = 0;
-  begin = (char *) malloc (sizeof(char)*ARRAYSIZE);
+  countBuffer = (bufferType *) malloc (sizeof(bufferType)*ARRAYSIZE);
   iter = 0;
   for (int i = 0; i < ARRAYSIZE; i ++) {
-    begin[i] = 0;
+    countBuffer[i] = 0;
   }
   
   ////////// INTERRUPT INITILAIZATION /////////
   sei ();       // enable global interrupts
   //__enable_interrupt();
-  EICRA = 0x30; // configure interupt INT2
-  EIMSK = 0x04; // enabe interrupt INT2
+  EICRA = 0x00; // configure interupt INT2 B 0000 0000
+  EIMSK = 0x04; // enabe interrupt INT2    B 0000 0100
   Serial.println("Finished setup");
   pinMode(4,OUTPUT);
   digitalWrite(4,LOW);
   //pinMode(1,INPUT);
-  DDRD &= 0xFC;
-  
+  //DDRD &= 0xFC;
+  DDRD &= ~0x04;
+  DDRD &= ~0x02;
+  PORTD |= 0x06;
 }
 
 void loop () {
   sei(); //enable interrupts
   //__enable_interrupt();  
   while (1) { // while the card is being read
-    Serial.print(on);
+    /*Serial.print(on);
     Serial.print(" ");
-    Serial.println(count);
+    Serial.println(count);*/
     if (iter >= ARRAYSIZE) { // if the buffer is full
       cli(); // disable interrupts
       //__disable_interrupt();
@@ -114,7 +117,7 @@ void loop () {
   count = 0;
   iter = 0;
   for (int i = 0; i < ARRAYSIZE; i ++) {
-    begin[i] = 0;
+    countBuffer[i] = 0;
   }
 }
 
@@ -132,8 +135,8 @@ ISR(INT2_vect) {
   //on = digitalRead(1);
   // if wave is rising (end of the last wave)
   if (on != 0 && lastpulse == 0 ) {
-    // write the data to the array and reset the cound
-    begin[iter] = count; 
+    // write the data to the array and reset the count
+    countBuffer[iter] = count; 
     count = 0;
     iter = iter + 1;
   }
@@ -304,9 +307,13 @@ void printBinary (int array[45]) {
 /************************* CONVERT RAW DATA TO BINARY *************************\
 | Converts the raw 'pulse per wave' count (5,6,or 7) to binary data (0, or 1)  |
 \******************************************************************************/
-void convertRawDataToBinary (char * buffer) {
+void convertRawDataToBinary (bufferType * buffer) {
   int i;
   for (i = 1; i < ARRAYSIZE; i++) {
+    if (i < 20) {
+    Serial.print(int (buffer[i]));
+    Serial.print("\t");
+    }
     if (buffer[i] == 5) {
       buffer[i] = 0;
     }
@@ -327,7 +334,7 @@ void convertRawDataToBinary (char * buffer) {
 | or more 1's in a row. This sigifies the start tag. If you took the fifteen   |
 | ones in multibit they would come out to be '111' in single-bit               |
 \******************************************************************************/
-int findStartTag (char * buffer) {
+int findStartTag (bufferType * buffer) {
   int i;
   int inARow = 0;
   int lastVal = 0;
@@ -354,7 +361,7 @@ int findStartTag (char * buffer) {
 | to produce the single bit result in the outputBuffer array the resulting     |
 | code is single bit manchester code                                           |
 \******************************************************************************/
-void parseMultiBitToSingleBit (char * buffer, int startOffset, int outputBuffer[]) {
+void parseMultiBitToSingleBit (bufferType * buffer, int startOffset, int outputBuffer[]) {
   int i = startOffset; // the offset value of the start tag
   int lastVal = 0; // what was the value of the last bit
   int inARow = 0; // how many identical bits are in a row// this may need to be 1 but seems to work fine
@@ -413,14 +420,14 @@ void analizeInput (void) {
   for (i = 0; i < 45; i++)  { finalArray[i] = 2;  }
   
   // Convert raw data to binary
-  convertRawDataToBinary (begin);
+  convertRawDataToBinary (countBuffer);
     
   // Find Start Tag
-  int startOffset = findStartTag(begin);
-  PORTB |= 0x10; // turn an led on on pin B5)
+  int startOffset = findStartTag(countBuffer);
+  //PORTB |= 0x10; // turn an led on on pin B5)
   
   // Parse multibit data to single bit data
-  parseMultiBitToSingleBit(begin, startOffset, resultArray);
+  parseMultiBitToSingleBit(countBuffer, startOffset, resultArray);
   
   // Error checking, see if there are any unset elements of the array
   for (i = 0; i < 88; i++) { // ignore the parody bit ([88] and [89])
