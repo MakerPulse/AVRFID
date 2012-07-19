@@ -203,7 +203,7 @@ int getDecimalFromBinary (int * array, int length) {
 void recurseDecimal (unsigned int val) {
   if (val > 0 ) {
     recurseDecimal(val/10);
-    Serial.print('0'+val%10);
+    Serial.print(val%10);
   }
   return;
 }
@@ -274,7 +274,7 @@ void printBinary (int array[45]) {
   int i;
   #ifdef Manufacturer_ID_Output
   for (i = MANUFACTURER_ID_OFFSET; i < MANUFACTURER_ID_OFFSET+MANUFACTURER_ID_LENGTH; i++) {
-    Serial.print('0'+array[i]);
+    Serial.print(array[i]);
   }
   #endif
   
@@ -284,7 +284,7 @@ void printBinary (int array[45]) {
   
   #ifdef Site_Code_Output
   for (i = SITE_CODE_OFFSET; i < SITE_CODE_OFFSET+SITE_CODE_LENGTH; i++) {
-    Serial.print('0'+array[i]);
+    Serial.print(array[i]);
   }
   #endif
 
@@ -294,7 +294,7 @@ void printBinary (int array[45]) {
 
   #ifdef Unique_Id_Output
   for (i = UNIQUE_ID_OFFSET; i < UNIQUE_ID_OFFSET+UNIQUE_ID_LENGTH; i++) {
-    Serial.print('0'+array[i]);
+    Serial.print(array[i]);
   }
   #endif
   Serial.print('\r');
@@ -482,7 +482,7 @@ void analizeInput (void) {
   for (i = 0; i<44; i++) {
     Serial.print(finalArray[i]);
   }
-  Serial.println("");
+  Serial.println("END");
   
   
   
