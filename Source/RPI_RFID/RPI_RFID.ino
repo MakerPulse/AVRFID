@@ -36,9 +36,9 @@
 
 /// countBuffer the includes
 
-#include <avr/io.h>
-#include <avr/interrupt.h>
-#include <stdlib.h>
+//#include <avr/io.h>
+//#include <avr/interrupt.h>
+//#include <stdlib.h>
 
 #define ARRAYSIZE 9   // Number of RF points to collect each time
 #define bufferType int
@@ -63,8 +63,8 @@ void setup () {
   //DDRB = 0x1E; // 00011100 configure output on port B
   
   // USART INITILIZATION
-  Serial.begin(9600);
-  Serial.println("Finished setup");
+  ////Serial.begin(9600);
+  ////Serial.println("Finished setup");
   //Serial1.countBuffer(9600);
   //Serial1.println("Serial  1");
   //Serial2.countBuffer(9600);
@@ -79,27 +79,34 @@ void setup () {
   }
   
   ////////// INTERRUPT INITILAIZATION /////////
-  sei ();       // enable global interrupts
+  //sei ();       // enable global interrupts
+  //cli ();// disable global interrupts
   //__enable_interrupt();
-  EICRA = 0x00; // configure interupt INT2 B 0000 0000
+  EIMSK = 0x00;
+  EICRA = 0x30; // configure interupt INT2 B 0011 0000
   EIMSK = 0x04; // enabe interrupt INT2    B 0000 0100
-  Serial.println("Finished setup");
+  //__disable_interrupt();
+  sei();
+  ////Serial.println("Finished setup");
   pinMode(4,OUTPUT);
   digitalWrite(4,LOW);
   //pinMode(1,INPUT);
   //DDRD &= 0xFC;
   DDRD &= ~0x04;
   DDRD &= ~0x02;
-  PORTD |= 0x06;
+  //PORTD |= 0x06;
+  
+  DDRD |= 0x80;
+  PORTD |= 0x80;
 }
 
 void loop () {
   sei(); //enable interrupts
   //__enable_interrupt();  
   while (1) { // while the card is being read
-    /*Serial.print(on);
-    Serial.print(" ");
-    Serial.println(count);*/
+    /*////Serial.print(on);
+    ////Serial.print(" ");
+    ////Serial.println(count);*/
     if (iter >= ARRAYSIZE) { // if the buffer is full
       cli(); // disable interrupts
       //__disable_interrupt();
@@ -107,7 +114,7 @@ void loop () {
       break; // continue to analize the buffer
     }
   }  
-  Serial.println("Finished array");
+  ////Serial.println("Finished array");
   //PORTB &= ~0x1C;
   
   //analize the array of input
@@ -130,11 +137,17 @@ void loop () {
 |     wave                                                                     |
 \******************************************************************************/
 ISR(INT2_vect) {
+  //PORTD |= 0x80;
   //Save the value of DEMOD_OUT to prevent re-reading on the same group
-  on =(PIND & 0x04);
+  on =(PIND & 0x08);
+  
+  if (on==0x08) PORTD |= 0x80;
+  else { PORTD &= ~0x80; }
+  
   //on = digitalRead(1);
   // if wave is rising (end of the last wave)
-  if (on != 0 && lastpulse == 0 ) {
+  if (on == 0x08 && lastpulse == 0 ) {
+    //PORTD |= 0x80;
     // write the data to the array and reset the count
     countBuffer[iter] = count; 
     count = 0;
@@ -142,6 +155,7 @@ ISR(INT2_vect) {
   }
   count = count + 1;
   lastpulse = on;
+  //PORTD &= ~0x80;
 }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -191,7 +205,7 @@ int getDecimalFromBinary (int * array, int length) {
 void recurseDecimal (unsigned int val) {
   if (val > 0 ) {
     recurseDecimal(val/10);
-    Serial.print('0'+val%10);
+    ////Serial.print('0'+val%10);
   }
   return;
 }
@@ -204,7 +218,7 @@ void printDecimal (int array[45]) {
   #endif
   
   #ifdef Split_Tags_With
-    Serial.print(Split_Tags_With);
+    ////Serial.print(Split_Tags_With);
   #endif
   
   #ifdef Site_Code_Output
@@ -214,7 +228,7 @@ void printDecimal (int array[45]) {
   #endif
 
   #ifdef Split_Tags_With
-    Serial.print(Split_Tags_With);
+    ////Serial.print(Split_Tags_With);
   #endif
 
   #ifdef Unique_Id_Output
@@ -222,38 +236,38 @@ void printDecimal (int array[45]) {
   recurseDecimal(lastId);
   #endif
   
-  Serial.print('\r');
-  Serial.print('\n');
+  ////Serial.print('\r');
+  ////Serial.print('\n');
 }
 void printHexadecimal (int array[45]) {
   int i;
   #ifdef Manufacturer_ID_Output
   for (i = MANUFACTURER_ID_OFFSET; i < MANUFACTURER_ID_OFFSET+MANUFACTURER_ID_LENGTH; i+=4) {
-    Serial.print(binaryTohex(array[i],array[i+1],array[i+2],array[i+3]));
+    ////Serial.print(binaryTohex(array[i],array[i+1],array[i+2],array[i+3]));
   }
   #endif
   
   #ifdef Split_Tags_With
-    Serial.print(Split_Tags_With);
+    ////Serial.print(Split_Tags_With);
   #endif
   
   #ifdef Site_Code_Output
   for (i = SITE_CODE_OFFSET; i < SITE_CODE_OFFSET+SITE_CODE_LENGTH; i+=4) {
-    Serial.print(binaryTohex(array[i],array[i+1],array[i+2],array[i+3]));
+    ////Serial.print(binaryTohex(array[i],array[i+1],array[i+2],array[i+3]));
   }
   #endif
 
   #ifdef Split_Tags_With
-    Serial.print(Split_Tags_With);
+    ////Serial.print(Split_Tags_With);
   #endif
 
   #ifdef Unique_Id_Output
   for (i = UNIQUE_ID_OFFSET; i < UNIQUE_ID_OFFSET+UNIQUE_ID_LENGTH; i+=4) {
-    Serial.print(binaryTohex(array[i],array[i+1],array[i+2],array[i+3]));
+    ////Serial.print(binaryTohex(array[i],array[i+1],array[i+2],array[i+3]));
   }
   #endif
-  Serial.print('\r');
-  Serial.print('\n');
+  ////Serial.print('\r');
+  ////Serial.print('\n');
 }
 
 
@@ -262,31 +276,31 @@ void printBinary (int array[45]) {
   int i;
   #ifdef Manufacturer_ID_Output
   for (i = MANUFACTURER_ID_OFFSET; i < MANUFACTURER_ID_OFFSET+MANUFACTURER_ID_LENGTH; i++) {
-    Serial.print('0'+array[i]);
+    ////Serial.print('0'+array[i]);
   }
   #endif
   
   #ifdef Split_Tags_With
-    Serial.print(Split_Tags_With);
+    ////Serial.print(Split_Tags_With);
   #endif
   
   #ifdef Site_Code_Output
   for (i = SITE_CODE_OFFSET; i < SITE_CODE_OFFSET+SITE_CODE_LENGTH; i++) {
-    Serial.print('0'+array[i]);
+    ////Serial.print('0'+array[i]);
   }
   #endif
 
   #ifdef Split_Tags_With
-    Serial.print(Split_Tags_With);
+    ////Serial.print(Split_Tags_With);
   #endif
 
   #ifdef Unique_Id_Output
   for (i = UNIQUE_ID_OFFSET; i < UNIQUE_ID_OFFSET+UNIQUE_ID_LENGTH; i++) {
-    Serial.print('0'+array[i]);
+    ////Serial.print('0'+array[i]);
   }
   #endif
-  Serial.print('\r');
-  Serial.print('\n');
+  ////Serial.print('\r');
+  ////Serial.print('\n');
 }
 
 
@@ -311,8 +325,8 @@ void convertRawDataToBinary (bufferType * buffer) {
   int i;
   for (i = 1; i < ARRAYSIZE; i++) {
     if (i < 20) {
-    Serial.print(int (buffer[i]));
-    Serial.print("\t");
+    ////Serial.print(int (buffer[i]));
+    ////Serial.print("\t");
     }
     if (buffer[i] == 5) {
       buffer[i] = 0;
