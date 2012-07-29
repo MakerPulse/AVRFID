@@ -321,7 +321,7 @@ void printBinary (int array[45]) {
 \******************************************************************************/
 void convertRawDataToBinary (bufferType * buffer) {
   int i;
-  Serial.print("FULL BUFFER");
+  //Serial.print("FULL BUFFER");
   for (i = 1; i < ARRAYSIZE; i++) {
     /*
     if (buffer[i] == 5) {
@@ -342,9 +342,9 @@ void convertRawDataToBinary (bufferType * buffer) {
     else {
       buffer[i] = -2;
     }
-    Serial.print(int(buffer[i]));
+    //Serial.print(int(buffer[i]));
   }
-  Serial.println("");
+  //Serial.println("");
 }
 /******************************* FIND START TAG *******************************\
 | This function goes through the buffer and tries to find a group of fifteen   |
@@ -445,13 +445,15 @@ void analizeInput (void) {
   
   // Parse multibit data to single bit data
   parseMultiBitToSingleBit(countBuffer, startOffset, resultArray);
+  
     
+  /*
   Serial.print("SINGLE BIT BUFFER: ");
   for (i = 0; i < 88; i++) { // ignore the parody bit ([88] and [89])
     Serial.print(resultArray[i]);
   }
   Serial.println("");
-  
+  */
   
   // Error checking, see if there are any unset elements of the array
   for (i = 0; i < 88; i++) { // ignore the parody bit ([88] and [89])
@@ -460,7 +462,7 @@ void analizeInput (void) {
     }
   }
   
-  Serial.print("Manchester: ");
+  //Serial.print("Manchester: ");
   //------------------------------------------
   // MANCHESTER DECODING
   //------------------------------------------
@@ -479,11 +481,12 @@ void analizeInput (void) {
     finalArray_index++;
   }
   
+  /*
   for (i = 0; i<44; i++) {
     Serial.print(finalArray[i]);
   }
   Serial.println("END");
-  
+  */
   
   
   #ifdef Binary_Tag_Output         // Outputs the Read tag in binary over serial
