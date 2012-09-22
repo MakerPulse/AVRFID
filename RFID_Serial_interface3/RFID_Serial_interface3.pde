@@ -72,17 +72,7 @@ void keyPressed(){
 
 void serialEvent(Serial p){
   inString = p.readString();
-  if(inString != null){
-    println(inString);
-    inString = inString.substring(0,11);
-    if((currentEntry = search(inString)) < 0){
-      message("rfid \"" + inString + "\" not found in file");
-      currentEntry = 0;
-    }
-    else{
-      message("rfid \"" + inString + "\" found at entry " + currentEntry);
-    }
-  }
+  inString = inString.substring(0, 11);
 }
 
 String getText(){
@@ -103,6 +93,15 @@ int search(String searchFor){
     }
   }
   return -1;
+}
+
+void cancellAll(){
+  buttons[SEARCH].clicked = false;
+  buttons[LOAD].clicked = false;
+  buttons[EDIT].clicked = false;
+  buttons[ADD].clicked = false;
+  buttons[SERIAL].clicked = false;
+  buttons[CANCEL].clicked = false;
 }
 
 void setup(){
@@ -186,6 +185,68 @@ void draw(){
     mousePressed = false;
   }
   
+  if(buttons[EDIT].clicked && fileOpen){            //add new person
+    if(message1.charAt(0) != 'S'){
+      message("Scan ID, or enter \'First Last,email,role\'");
+    }
+    person tperson = (person) people.get(currentEntry);
+    if(getText() != ""){
+      String tstring[] = split(getText(), ',');
+      tperson.name = tstring[0];
+      tperson.email = tstring[1];
+      tperson.role = tstring[2];
+      inputText = "";
+      inString = null;
+      people.set(currentEntry,tperson);
+      message("Entry updated successfully");
+      buttons[EDIT].clicked = false;
+    }
+    if(inString != null){
+      tperson.rfid = inString;
+      inputText = "";
+      inString = null;
+      people.set(currentEntry,tperson);
+      message("Entry updated successfully");
+      buttons[EDIT].clicked = false;
+    }
+  }
+  
+  if(buttons[ADD].clicked && fileOpen){            //add new person
+    if(message1.charAt(0) != 'E'){
+      message("Enter \'First Last,email,role\' and scan ID");
+    }
+    if((getText() != "") && (inString != null)){
+      String tstring[] = split(getText(), ',');
+      people.add(new person(tstring[0], tstring[1], inString, tstring[2]));
+      inputText = "";
+      inString = null;
+      buttons[ADD].clicked = false;
+      message("New person added successfully");
+    }
+  }
+  
+  if(buttons[SEARCH].clicked){
+    person tperson;
+    textAlign(LEFT);
+    if(message1 != "Input string to search for:")
+      message("Input string to search for:");
+    if(getText() != ""){
+      if((currentEntry = search(getText())) < 0){
+        message("string \"" + getText() + "\" not found in file");
+        currentEntry = 0;
+      }
+      else{
+        message("string \"" + getText() + "\" found at entry " + currentEntry);
+      }
+      buttons[SEARCH].clicked = false;
+      inputText = "";
+    }
+  }
+  
+  if(buttons[CANCEL].clicked){
+    cancellAll();
+  }
+  
   if(buttons[SERIAL].clicked){              //open/refresh serial port
     if(portOpen){                          //close open port
       myPort.stop();
@@ -230,46 +291,6 @@ void draw(){
       currentEntry--;
   }
   
-  if(buttons[ADD].clicked && fileOpen){            //add new person
-    if(message1.charAt(0) != 'E'){
-      message("Enter \'First Last,email,role\'");
-    }
-    if(getText() != ""){
-      String tstring[] = split(getText(), ',');
-      people.add(new person(tstring[0], tstring[1], "0000000000", tstring[2]));
-      buttons[ADD].clicked = false;
-      inputText = "";
-      message("New person added successfully");
-    }
-  }
-  
-  if(buttons[SEARCH].clicked){
-    person tperson;
-    textAlign(LEFT);
-    if(message1 != "Input string to search for:")
-      message("Input string to search for:");
-    if(getText() != ""){
-      if((currentEntry = search(getText())) < 0){
-        message("string \"" + getText() + "\" not found in file");
-        currentEntry = 0;
-      }
-      else{
-        message("string \"" + getText() + "\" found at entry " + currentEntry);
-      }
-      buttons[SEARCH].clicked = false;
-      inputText = "";
-    }
-  }
-  
-  if(buttons[CANCEL].clicked){
-    buttons[SEARCH].clicked = false;
-    buttons[LOAD].clicked = false;
-    buttons[EDIT].clicked = false;
-    buttons[ADD].clicked = false;
-    buttons[SERIAL].clicked = false;
-    buttons[CANCEL].clicked = false;
-  }
-  
   if(fileOpen){                         //print a list of entries
     textAlign(RIGHT);
     text(fileName.substring(fileName.lastIndexOf('\\')+1), 595, 15);
@@ -305,6 +326,22 @@ void draw(){
     fill(#00FF00);
     textAlign(LEFT);
     text("OK to scan", 150, 15);
+    
+    //always listening for an RFID on the serial port
+    if((inString != null) && !buttons[ADD].clicked && !buttons[EDIT].clicked){//if there is an ID available
+      //println(inString);
+      if((currentEntry = search(inString)) < 0){
+        message("rfid \"" + inString + "\" not found in file");
+        buttons[ADD].clicked = true;
+        currentEntry = 0;
+      }
+      else{
+        message("rfid \"" + inString + "\" found at entry " + currentEntry);
+        inString = null;
+      }
+    }
+    //always doing other things
+    
   }
 }
 
