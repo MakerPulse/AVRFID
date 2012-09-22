@@ -10,6 +10,7 @@ int DOWN = 7;
 import processing.serial.*;
 Serial myPort;
 int port;
+String portName;
 
 PFont font;
 color textColor = #FFFFFF;
@@ -248,25 +249,33 @@ void draw(){
   }
   
   if(buttons[SERIAL].clicked){              //open/refresh serial port
+    if(message1.charAt(0) == 'G');
+    else if(message2.charAt(0) == 'G');
+    else{
+      message("Getting serial port list, please wait");
+      draw();
+    }
     if(portOpen){                          //close open port
       myPort.stop();
       myPort.clear();
       portOpen = false;
     }
-    String message = "Ports: ";
-    for(int i=0; i<Serial.list().length; i++){
-      message += i;     //list each one with the corresponding user input to select
-      message += ": ";
-      message += Serial.list()[i];
-      message += ", ";
+    if(message1.charAt(0) != 'P'){         //only do this once or the program will slow way down
+      String tmessage = "Ports - ";
+      for(int i=0; i<Serial.list().length; i++){
+        tmessage += i;     //list each one with the corresponding user input to select
+        tmessage += ": ";
+        tmessage += Serial.list()[i];
+        tmessage += ", ";
+      }
+      tmessage += "please select port";
+      message(tmessage);
     }
-    message += "please select port";
-    if(message1.charAt(0) != 'P')
-      message(message);
       
     if(getText() != ""){
       port = getText().charAt(0)-48;
-      myPort = new Serial(this, Serial.list()[port], 9600);
+      portName = Serial.list()[port];
+      myPort = new Serial(this, portName, 9600);
       portOpen = true;
       buttons[SERIAL].clicked = false;
       message("port opened");
@@ -313,7 +322,7 @@ void draw(){
   
   if(portOpen){
     textAlign(LEFT);
-    text(Serial.list()[port], 350, 15);
+    text(portName, 350, 15);
   }
   
   if(!fileOpen || !portOpen){              //port must be open and file loaded
