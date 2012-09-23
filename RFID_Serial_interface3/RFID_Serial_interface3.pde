@@ -1,11 +1,12 @@
 int LOAD = 0;
 int EDIT = 1;
 int ADD = 2;
-int SEARCH = 3;
-int CANCEL = 4;
+int MARK = 3;
+int SEARCH = 4;
 int SERIAL = 5;
-int UP = 6;
-int DOWN = 7;
+int CANCEL = 6;
+int UP = 7;
+int DOWN = 8;
 
 import processing.serial.*;
 Serial myPort;
@@ -23,14 +24,14 @@ int buttonHeight = 50;
 button[] buttons = {new button("load", 000, 24),
                     new button("edit", 100, 24),
                     new button("add", 200, 24),
-                    new button("search", 300, 24),
-                    new button("cancel", 400, 24),
+                    new button("mark",300,24),
+                    new button("search", 400, 24),
                     new button("serial", 500, 24),
-                    new button("^", 582, 193, 18, 18),
-                    new button("v", 582, 408, 18, 18)};
+                    new button("cancel", 600, 24),
+                    new button("^", 682, 193, 18, 18),
+                    new button("v", 682, 408, 18, 18)};
                     
 ArrayList people;
-ArrayList present;
 String[] lines;
 
 String date = "01/01/2012";
@@ -106,7 +107,7 @@ void cancellAll(){
 }
 
 void setup(){
-  size(600, 450);
+  size(700, 450);
   font = loadFont("CourierNewPS-BoldMT-12.vlw");
   textFont(font, 15);
   date = month() + "/" + day() + "/" + year();
@@ -136,15 +137,15 @@ void draw(){
   
   //these are small divisions in the screen which separates messages from input text, and input text from list
   fill(#444444);
-  rect(0, 166, 600, 3);
-  rect(0, 190, 600, 3);
-  rect(0, 426, 600, 3);
+  rect(0, 166, 700, 3);
+  rect(0, 190, 700, 3);
+  rect(0, 426, 700, 3);
   
   //general text printing
   fill(textColor);
   textFont(font, 15);
   textAlign(CENTER);
-  text("Press cancel at any time to return", 300, 445);
+  text("Press cancel at any time to return", 350, 445);
   textAlign(LEFT);
   text(date, 5, 15);                  //date in upper left
   text(message4, 5, 86);              //output messages to user
@@ -211,6 +212,7 @@ void draw(){
       buttons[EDIT].clicked = false;
     }
   }
+  else buttons[EDIT].clicked = false;
   
   if(buttons[ADD].clicked && fileOpen){            //add new person
     if(message1.charAt(0) != 'E'){
@@ -223,12 +225,23 @@ void draw(){
       inString = null;
       buttons[ADD].clicked = false;
       message("New person added successfully");
+      currentEntry = people.size();
     }
   }
+  else buttons[ADD].clicked = false;
   
-  if(buttons[SEARCH].clicked){
-    person tperson;
-    textAlign(LEFT);
+  if(buttons[MARK].clicked && fileOpen){
+    person tperson = (person) people.get(currentEntry);
+    if(!tperson.present)
+      tperson.present = true;
+    else
+      tperson.present = false;
+    buttons[MARK].clicked = false;
+    mousePressed = false;
+  }
+  else buttons[MARK].clicked = false;
+  
+  if(buttons[SEARCH].clicked && fileOpen){
     if(message1 != "Input string to search for:")
       message("Input string to search for:");
     if(getText() != ""){
@@ -243,18 +256,15 @@ void draw(){
       inputText = "";
     }
   }
+  else buttons[SEARCH].clicked = false;
   
   if(buttons[CANCEL].clicked){
     cancellAll();
+    if(message1.charAt(0) != 'c')
+      message("cancelling");
   }
   
   if(buttons[SERIAL].clicked){              //open/refresh serial port
-    if(message1.charAt(0) == 'G');
-    else if(message2.charAt(0) == 'G');
-    else{
-      message("Getting serial port list, please wait");
-      draw();
-    }
     if(portOpen){                          //close open port
       myPort.stop();
       myPort.clear();
@@ -300,9 +310,9 @@ void draw(){
       currentEntry--;
   }
   
-  if(fileOpen){                         //print a list of entries
+  if(fileOpen){                       //print the list of people
     textAlign(RIGHT);
-    text(fileName.substring(fileName.lastIndexOf('\\')+1), 595, 15);
+    text(fileName.substring(fileName.lastIndexOf('\\')+1), 695, 15);
     textAlign(LEFT);
     person tperson = (person) people.get(0);
     text("Name", 5, 206);             //header of file
@@ -317,24 +327,26 @@ void draw(){
       text(tperson.email, 200, 230+i*24);
       text(tperson.rfid, 300, 230+i*24);
       text(tperson.role, 440, 230+i*24);
+      if(tperson.present)
+        text("present", 560, 230+i*24);
     }
   }
   
   if(portOpen){
-    textAlign(LEFT);
-    text(portName, 350, 15);
+    textAlign(CENTER);                     //serial port name
+    text(portName, 466, 15);
   }
   
   if(!fileOpen || !portOpen){              //port must be open and file loaded
     fill(#FF0000);
-    textAlign(LEFT);
-    text("NOT OK to scan", 150, 15);
+    textAlign(CENTER);
+    text("NOT OK to scan", 233, 15);
   }
   
   else{                                    //if the port is open and the file is loaded
     fill(#00FF00);
-    textAlign(LEFT);
-    text("OK to scan", 150, 15);
+    textAlign(CENTER);
+    text("OK to scan", 233, 15);
     
     //always listening for an RFID on the serial port
     if((inString != null) && !buttons[ADD].clicked && !buttons[EDIT].clicked){//if there is an ID available
@@ -346,6 +358,8 @@ void draw(){
       }
       else{
         message("rfid \"" + inString + "\" found at entry " + currentEntry);
+        person tperson = (person) people.get(currentEntry);
+        tperson.present = true;
         inString = null;
       }
     }
@@ -384,13 +398,15 @@ class person{                        //class to list people
   String name;                          //person's first and last name
   String email;                         //rpi student email, up to @
   String rfid;                          //rpi student id card rfid number
-  public String role;                   //officer, member, associate, advisor
+  String role;                          //officer, member, associate, advisor
+  boolean present;                      //attendance
   
   person(String n){                  //create a person with a name only
     name = n;
     email = "";                          //blank RCSID
     rfid = "";                           //blank RFID
     role = "associate";                  //associate
+    present = false;
   }
   
   person(String n, String e, String r){//create person with name, email, and rfid
@@ -398,6 +414,7 @@ class person{                        //class to list people
     email = e;
     rfid = r;              
     role = "associate";               //change role as needed after addition
+    present = false;
   }
   
   person(String n, String e, String r, String q){//create person with name, email, rfid, and role
@@ -405,6 +422,7 @@ class person{                        //class to list people
     email = e;
     rfid = r;              
     role = q;
+    present = false;
   }
 }
 
@@ -413,10 +431,6 @@ private void prepareExitHandler(){
     public void run(){
       System.out.println("SHUTDOWN HOOK");
       // application exit code here
-      if(fileOpen){          
-        saveStrings(fileName, lines);
-        System.out.println("file saved successfully");
-      }
     }
   }));
 }
