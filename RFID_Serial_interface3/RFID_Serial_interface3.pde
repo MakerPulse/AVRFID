@@ -7,6 +7,7 @@ int SERIAL = 5;
 int CANCEL = 6;
 int UP = 7;
 int DOWN = 8;
+int BAUD = 19200;
 
 import processing.serial.*;
 Serial myPort;
@@ -35,19 +36,18 @@ ArrayList people;
 String[] lines;
 
 String date = "01/01/2012";
-
+String prefix = "event_";
+String namesFile = "";
+String inString = null;
 String inputText = "";
 String fileName = "";
+
 String message1 = "Open Serial port to begin scanning";
 String message2 = "Open Names file to load tags";
 String message3 = "Welcome to RPI ID Reader";
 String message4 = "";
 
 int currentEntry = 3;
-
-String namesFile = "";
-String inRfid = null;
-String inString = null;
 
 boolean fileOpen = false;
 boolean portOpen = false;
@@ -104,6 +104,16 @@ void cancellAll(){
   buttons[ADD].clicked = false;
   buttons[SERIAL].clicked = false;
   buttons[CANCEL].clicked = false;
+}
+
+String makeString(person tperson){
+  String tstring = "";
+  tstring += tperson.name;
+  tstring += ',';
+  tstring += tperson.email;
+  tstring += ',';
+  tstring += tperson.role;
+  return tstring;
 }
 
 void setup(){
@@ -285,7 +295,7 @@ void draw(){
     if(getText() != ""){
       port = getText().charAt(0)-48;
       portName = Serial.list()[port];
-      myPort = new Serial(this, portName, 9600);
+      myPort = new Serial(this, portName, BAUD);
       portOpen = true;
       buttons[SERIAL].clicked = false;
       message("port opened");
@@ -431,6 +441,23 @@ private void prepareExitHandler(){
     public void run(){
       System.out.println("SHUTDOWN HOOK");
       // application exit code here
+      
+      person tperson;
+      String outData[];
+      ArrayList present = new ArrayList();
+      
+      for(int i=0; i<people.size(); i++){
+        tperson = (person) people.get(i);
+        if(tperson.present){
+          present.add(makeString(tperson));
+        }
+      }
+      
+      outData = new String[present.size()];
+      outData = (String[]) present.toArray(outData);
+      
+      saveStrings((prefix + month() + day() + year() + ".txt"), outData);
+      println("saved data");      
     }
   }));
 }
