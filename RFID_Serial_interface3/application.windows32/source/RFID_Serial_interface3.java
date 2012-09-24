@@ -1,3 +1,24 @@
+import processing.core.*; 
+import processing.xml.*; 
+
+import processing.serial.*; 
+
+import java.applet.*; 
+import java.awt.Dimension; 
+import java.awt.Frame; 
+import java.awt.event.MouseEvent; 
+import java.awt.event.KeyEvent; 
+import java.awt.event.FocusEvent; 
+import java.awt.Image; 
+import java.io.*; 
+import java.net.*; 
+import java.text.*; 
+import java.util.*; 
+import java.util.zip.*; 
+import java.util.regex.*; 
+
+public class RFID_Serial_interface3 extends PApplet {
+
 int LOAD = 0;
 int EDIT = 1;
 int ADD = 2;
@@ -9,16 +30,16 @@ int UP = 7;
 int DOWN = 8;
 int BAUD = 19200;
 
-import processing.serial.*;
+
 Serial myPort;
 int port;
 String portName;
 
 PFont font;
-color textColor = #FFFFFF;
-color normalColor = #555555;
-color hoverColor = #444444;
-color clickColor = #111111;
+int textColor = 0xffFFFFFF;
+int normalColor = 0xff555555;
+int hoverColor = 0xff444444;
+int clickColor = 0xff111111;
 int buttonWidth = 100;
 int buttonHeight = 50;
 
@@ -52,14 +73,14 @@ int currentEntry = 3;
 boolean fileOpen = false;
 boolean portOpen = false;
 
-void message(String output){
+public void message(String output){
   message4 = message3;
   message3 = message2;
   message2 = message1;
   message1 = output;
 }
 
-void keyPressed(){
+public void keyPressed(){
   if(key == 8){  //backspace
     if(inputText.length() != 0)
       inputText = inputText.substring(0, inputText.length()-1);
@@ -72,19 +93,19 @@ void keyPressed(){
   }
 }
 
-void serialEvent(Serial p){
+public void serialEvent(Serial p){
   inString = p.readString();
   inString = inString.substring(0, 11);
 }
 
-String getText(){
+public String getText(){
   if(inputText.length() > 0 && inputText.charAt(inputText.length()-1) == 10)
     return(inputText.substring(0, inputText.length()-1));
   else
     return "";
 }
 
-int search(String searchFor){
+public int search(String searchFor){
   person tperson;
   for(int i=0; i<people.size(); i++){
     tperson = (person) people.get(i);
@@ -97,7 +118,7 @@ int search(String searchFor){
   return -1;
 }
 
-void cancellAll(){
+public void cancellAll(){
   buttons[SEARCH].clicked = false;
   buttons[LOAD].clicked = false;
   buttons[EDIT].clicked = false;
@@ -106,19 +127,17 @@ void cancellAll(){
   buttons[CANCEL].clicked = false;
 }
 
-String makeString(person tperson){
+public String makeString(person tperson){
   String tstring = "";
   tstring += tperson.name;
   tstring += ',';
   tstring += tperson.email;
   tstring += ',';
-  tstring += tperson.rfid;
-  tstring += ',';
   tstring += tperson.role;
   return tstring;
 }
 
-void setup(){
+public void setup(){
   size(700, 450);
   font = loadFont("CourierNewPS-BoldMT-12.vlw");
   textFont(font, 15);
@@ -127,7 +146,7 @@ void setup(){
   people = new ArrayList();
 }
 
-void draw(){
+public void draw(){
   background(0);
   //nostroke();
   
@@ -148,7 +167,7 @@ void draw(){
   }
   
   //these are small divisions in the screen which separates messages from input text, and input text from list
-  fill(#444444);
+  fill(0xff444444);
   rect(0, 166, 700, 3);
   rect(0, 190, 700, 3);
   rect(0, 426, 700, 3);
@@ -237,8 +256,7 @@ void draw(){
       inString = null;
       buttons[ADD].clicked = false;
       message("New person added successfully");
-      currentEntry = people.size()-1;
-      buttons[MARK].clicked = true;
+      currentEntry = people.size();
     }
   }
   else buttons[ADD].clicked = false;
@@ -351,13 +369,13 @@ void draw(){
   }
   
   if(!fileOpen || !portOpen){              //port must be open and file loaded
-    fill(#FF0000);
+    fill(0xffFF0000);
     textAlign(CENTER);
     text("NOT OK to scan", 233, 15);
   }
   
   else{                                    //if the port is open and the file is loaded
-    fill(#00FF00);
+    fill(0xff00FF00);
     textAlign(CENTER);
     text("OK to scan", 233, 15);
     
@@ -448,28 +466,25 @@ private void prepareExitHandler(){
       person tperson;
       String outData[];
       ArrayList present = new ArrayList();
-      ArrayList allPeople = new ArrayList();
       
       for(int i=0; i<people.size(); i++){
         tperson = (person) people.get(i);
-        
         if(tperson.present){
           present.add(makeString(tperson));
         }
-        allPeople.add(makeString(tperson));
       }
       
-      outData = new String[present.size()];                                //save present information
+      outData = new String[present.size()];
       outData = (String[]) present.toArray(outData);
+      
       saveStrings((prefix + month() + day() + year() + ".txt"), outData);
-      
-      outData = new String[allPeople.size()];                                //save present information
-      outData = (String[]) allPeople.toArray(outData);
-      saveStrings(fileName, outData);
-      
       println("saved data");      
     }
   }));
 }
 
 
+  static public void main(String args[]) {
+    PApplet.main(new String[] { "--bgcolor=#F0F0F0", "RFID_Serial_interface3" });
+  }
+}

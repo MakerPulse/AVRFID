@@ -112,8 +112,6 @@ String makeString(person tperson){
   tstring += ',';
   tstring += tperson.email;
   tstring += ',';
-  tstring += tperson.rfid;
-  tstring += ',';
   tstring += tperson.role;
   return tstring;
 }
@@ -237,8 +235,7 @@ void draw(){
       inString = null;
       buttons[ADD].clicked = false;
       message("New person added successfully");
-      currentEntry = people.size()-1;
-      buttons[MARK].clicked = true;
+      currentEntry = people.size();
     }
   }
   else buttons[ADD].clicked = false;
@@ -448,25 +445,18 @@ private void prepareExitHandler(){
       person tperson;
       String outData[];
       ArrayList present = new ArrayList();
-      ArrayList allPeople = new ArrayList();
       
       for(int i=0; i<people.size(); i++){
         tperson = (person) people.get(i);
-        
         if(tperson.present){
           present.add(makeString(tperson));
         }
-        allPeople.add(makeString(tperson));
       }
       
-      outData = new String[present.size()];                                //save present information
+      outData = new String[present.size()];
       outData = (String[]) present.toArray(outData);
+      
       saveStrings((prefix + month() + day() + year() + ".txt"), outData);
-      
-      outData = new String[allPeople.size()];                                //save present information
-      outData = (String[]) allPeople.toArray(outData);
-      saveStrings(fileName, outData);
-      
       println("saved data");      
     }
   }));
