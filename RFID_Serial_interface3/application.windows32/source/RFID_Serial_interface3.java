@@ -61,7 +61,7 @@ String prefix = "event_";
 String namesFile = "";
 String inString = null;
 String inputText = "";
-String fileName = "";
+String fileName = null;
 
 String message1 = "Open Serial port to begin scanning";
 String message2 = "Open Names file to load tags";
@@ -125,6 +125,8 @@ public void cancellAll(){
   buttons[ADD].clicked = false;
   buttons[SERIAL].clicked = false;
   buttons[CANCEL].clicked = false;
+  
+  inString = null;
 }
 
 public String makeString(person tperson){
@@ -132,6 +134,8 @@ public String makeString(person tperson){
   tstring += tperson.name;
   tstring += ',';
   tstring += tperson.email;
+  tstring += ',';
+  tstring += tperson.rfid;
   tstring += ',';
   tstring += tperson.role;
   return tstring;
@@ -204,10 +208,11 @@ public void draw(){
       //println(lines.length);
       fileOpen = true;
       currentEntry = 0;
+      inString = null;
       message("file \"" + fileName.substring(fileName.lastIndexOf('\\')+1) + "\" opened");
       for(int i=1; i<lines.length; i++){    //first line is a header
         String tstring[] = split(lines[i], ',');    
-        people.add(new person(tstring[1], tstring[2], tstring[3], tstring[4]));
+        people.add(new person(tstring[0], tstring[1], tstring[2], tstring[3]));
       }
     }
     else{
@@ -247,16 +252,20 @@ public void draw(){
   
   if(buttons[ADD].clicked && fileOpen){            //add new person
     if(message1.charAt(0) != 'E'){
-      message("Enter \'First Last,email,role\' and scan ID");
+      message("Enter \'First Last,email,role\'");
     }
-    if((getText() != "") && (inString != null)){
+    if(getText() != ""){
       String tstring[] = split(getText(), ',');
-      people.add(new person(tstring[0], tstring[1], inString, tstring[2]));
+      if(inString == null)
+        people.add(new person(tstring[0], tstring[1], "00000000000", tstring[2]));
+      else
+        people.add(new person(tstring[0], tstring[1], inString, tstring[2]));
       inputText = "";
-      inString = null;
       buttons[ADD].clicked = false;
       message("New person added successfully");
-      currentEntry = people.size();
+      currentEntry = people.size()-1;
+      inString = null;
+      buttons[MARK].clicked = true;
     }
   }
   else buttons[ADD].clicked = false;
@@ -273,6 +282,8 @@ public void draw(){
   else buttons[MARK].clicked = false;
   
   if(buttons[SEARCH].clicked && fileOpen){
+    cancellAll();
+    buttons[SEARCH].clicked = true;
     if(message1 != "Input string to search for:")
       message("Input string to search for:");
     if(getText() != ""){
@@ -327,7 +338,7 @@ public void draw(){
   
   if(buttons[UP].clicked){              //scroll list up
     buttons[UP].clicked = false;
-    //mousePressed = false;
+    mousePressed = false;
     currentEntry--;
     if(currentEntry < 0)
       currentEntry = 0;
@@ -335,7 +346,7 @@ public void draw(){
   
   if(buttons[DOWN].clicked){            //scroll list down
     buttons[DOWN].clicked = false;
-    //mousePressed = false;
+    mousePressed = false;
     currentEntry++;
     if(currentEntry >= people.size())
       currentEntry--;
@@ -354,6 +365,10 @@ public void draw(){
       if(i+currentEntry >= people.size())
         break;
       tperson = (person) people.get(i+currentEntry);
+      if(i == 0)
+        fill(0xff00FFFF);
+      else
+        fill(0xffFFFFFF);
       text(tperson.name, 5, 230+i*24);
       text(tperson.email, 200, 230+i*24);
       text(tperson.rfid, 300, 230+i*24);
@@ -466,18 +481,25 @@ private void prepareExitHandler(){
       person tperson;
       String outData[];
       ArrayList present = new ArrayList();
+      ArrayList allPeople = new ArrayList();
       
       for(int i=0; i<people.size(); i++){
         tperson = (person) people.get(i);
+        
         if(tperson.present){
           present.add(makeString(tperson));
         }
+        allPeople.add(makeString(tperson));
       }
       
-      outData = new String[present.size()];
+      outData = new String[present.size()];                                //save present information
       outData = (String[]) present.toArray(outData);
-      
       saveStrings((prefix + month() + day() + year() + ".txt"), outData);
+      
+      outData = new String[allPeople.size()];                                //save present information
+      outData = (String[]) allPeople.toArray(outData);
+      saveStrings(fileName, outData);
+      
       println("saved data");      
     }
   }));

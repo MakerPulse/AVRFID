@@ -40,7 +40,7 @@ String prefix = "event_";
 String namesFile = "";
 String inString = null;
 String inputText = "";
-String fileName = "default.txt";
+String fileName = null;
 
 String message1 = "Open Serial port to begin scanning";
 String message2 = "Open Names file to load tags";
@@ -187,6 +187,7 @@ void draw(){
       //println(lines.length);
       fileOpen = true;
       currentEntry = 0;
+      inString = null;
       message("file \"" + fileName.substring(fileName.lastIndexOf('\\')+1) + "\" opened");
       for(int i=1; i<lines.length; i++){    //first line is a header
         String tstring[] = split(lines[i], ',');    
