@@ -40,7 +40,7 @@ String prefix = "event_";
 String namesFile = "";
 String inString = null;
 String inputText = "";
-String fileName = "";
+String fileName = "default.txt";
 
 String message1 = "Open Serial port to begin scanning";
 String message2 = "Open Names file to load tags";
@@ -104,6 +104,8 @@ void cancellAll(){
   buttons[ADD].clicked = false;
   buttons[SERIAL].clicked = false;
   buttons[CANCEL].clicked = false;
+  
+  inString = null;
 }
 
 String makeString(person tperson){
@@ -188,7 +190,7 @@ void draw(){
       message("file \"" + fileName.substring(fileName.lastIndexOf('\\')+1) + "\" opened");
       for(int i=1; i<lines.length; i++){    //first line is a header
         String tstring[] = split(lines[i], ',');    
-        people.add(new person(tstring[1], tstring[2], tstring[3], tstring[4]));
+        people.add(new person(tstring[0], tstring[1], tstring[2], tstring[3]));
       }
     }
     else{
@@ -228,16 +230,19 @@ void draw(){
   
   if(buttons[ADD].clicked && fileOpen){            //add new person
     if(message1.charAt(0) != 'E'){
-      message("Enter \'First Last,email,role\' and scan ID");
+      message("Enter \'First Last,email,role\'");
     }
-    if((getText() != "") && (inString != null)){
+    if(getText() != ""){
       String tstring[] = split(getText(), ',');
-      people.add(new person(tstring[0], tstring[1], inString, tstring[2]));
+      if(inString == null)
+        people.add(new person(tstring[0], tstring[1], "00000000000", tstring[2]));
+      else
+        people.add(new person(tstring[0], tstring[1], inString, tstring[2]));
       inputText = "";
-      inString = null;
       buttons[ADD].clicked = false;
       message("New person added successfully");
       currentEntry = people.size()-1;
+      inString = null;
       buttons[MARK].clicked = true;
     }
   }
@@ -255,6 +260,8 @@ void draw(){
   else buttons[MARK].clicked = false;
   
   if(buttons[SEARCH].clicked && fileOpen){
+    cancellAll();
+    buttons[SEARCH].clicked = true;
     if(message1 != "Input string to search for:")
       message("Input string to search for:");
     if(getText() != ""){
@@ -309,7 +316,7 @@ void draw(){
   
   if(buttons[UP].clicked){              //scroll list up
     buttons[UP].clicked = false;
-    //mousePressed = false;
+    mousePressed = false;
     currentEntry--;
     if(currentEntry < 0)
       currentEntry = 0;
@@ -317,7 +324,7 @@ void draw(){
   
   if(buttons[DOWN].clicked){            //scroll list down
     buttons[DOWN].clicked = false;
-    //mousePressed = false;
+    mousePressed = false;
     currentEntry++;
     if(currentEntry >= people.size())
       currentEntry--;
@@ -336,6 +343,10 @@ void draw(){
       if(i+currentEntry >= people.size())
         break;
       tperson = (person) people.get(i+currentEntry);
+      if(i == 0)
+        fill(#00FFFF);
+      else
+        fill(#FFFFFF);
       text(tperson.name, 5, 230+i*24);
       text(tperson.email, 200, 230+i*24);
       text(tperson.rfid, 300, 230+i*24);
