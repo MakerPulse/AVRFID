@@ -303,15 +303,6 @@ void printBinary (int array[45]) {
 
 
 
-
-
-
-
-
-
-
-
-
   //////////////////////////////////////////////////////////////////////////////
  ///////////////////////////// ANALYSIS FUNCTIONS /////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
@@ -333,11 +324,16 @@ void convertRawDataToBinary (bufferType * buffer) {
     else if (buffer[i] == 6) {
        buffer[i] = buffer[i-1];
     }*/
-    if (buffer[i] <= 9 && buffer[i] >= 6) {
+    //Serial.print(int(buffer[i]));
+    //Serial.print('|');
+    if (buffer[i] <= 8 && buffer[i] >= 6) {
       buffer[i] = 0;
     }
     else if (buffer[i] >= 10 && buffer[i] <= 18) {
       buffer[i] = 1;
+    }
+    else if (buffer[i] == 9) {
+      buffer[i] = buffer[i-1];
     }
     else {
       buffer[i] = -2;
