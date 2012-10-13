@@ -189,7 +189,7 @@ void draw(){
       currentEntry = 0;
       inString = null;
       message("file \"" + fileName.substring(fileName.lastIndexOf('\\')+1) + "\" opened");
-      for(int i=1; i<lines.length; i++){    //first line is a header
+      for(int i=0; i<lines.length; i++){    //first line is a header
         String tstring[] = split(lines[i], ',');    
         people.add(new person(tstring[0], tstring[1], tstring[2], tstring[3]));
       }
@@ -358,6 +358,7 @@ void draw(){
   }
   
   if(portOpen){
+    fill(#FFFFFF);
     textAlign(CENTER);                     //serial port name
     text(portName, 466, 15);
   }
