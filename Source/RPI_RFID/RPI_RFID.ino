@@ -84,7 +84,7 @@ void setup () {
   //__enable_interrupt();
   EIMSK = 0x00;
   EICRA = 0x30; // configure interupt INT2 B 0011 0000
-  EIMSK = 0x04; // enabe interrupt INT2    B 0000 0100
+  enableAntenna();
   //__disable_interrupt();
   sei();
   Serial.println("Finished setup");
@@ -104,14 +104,14 @@ void setup () {
 }
 
 void loop () {
-  sei(); //enable interrupts
+  enableAntenna();
   //__enable_interrupt();  
   while (1) { // while the card is being read
     /*Serial.print(on);
     Serial.print(" ");
     Serial.println(count);*/
     if (iter >= ARRAYSIZE) { // if the buffer is full
-      cli(); // disable interrupts
+      disableAntenna();
       //__disable_interrupt();
       //noInterrupts();
       break; // continue to analize the buffer
@@ -157,6 +157,14 @@ ISR(INT2_vect) {
   }
   count = count + 1;
   lastpulse = on;
+}
+
+
+void disableAntenna(){
+  EIMSK = 0x00; // disable interrupt INT2    B 0000 0000
+}
+void enableAntenna() {
+  EIMSK = 0x04; // enable interrupt INT2    B 0000 0100
 }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -488,7 +496,7 @@ void analizeInput (void) {
   */
   
   digitalWrite(13,HIGH);
-    delay(1000000);
+    delay(500);
   digitalWrite(13,LOW);
   
   #ifdef Binary_Tag_Output         // Outputs the Read tag in binary over serial
@@ -502,5 +510,5 @@ void analizeInput (void) {
   #ifdef Decimal_Tag_Output
     printDecimal (finalArray);
   #endif
-  //Serial.flush();
+  Serial.flush();
 }
