@@ -3,15 +3,15 @@
 | make the AVRFID code do different things
 \******************************************************************************/
 
-#define Binary_Tag_Output         // Outputs the Read tag in binary over serial
+//#define Binary_Tag_Output         // Outputs the Read tag in binary over serial
 #define Hexadecimal_Tag_Output    // Outputs the read tag in Hexadecimal over serial
-#define Decimal_Tag_Output        // Outputs the read tag in decimal
+//#define Decimal_Tag_Output        // Outputs the read tag in decimal
 
 #define Manufacturer_ID_Output    // The output will contain the Manufacturer ID (NOT IMPLEMENTED)
 #define Site_Code_Output          // The output will contain the Site Code       (NOT IMPLEMENTED)
 #define Unique_Id_Output          // The output will contain the Unique ID
 
-#define Split_Tags_With '-'       // The character to split tags pieces with
+//#define Split_Tags_With '-'       // The character to split tags pieces with
 
 
 //20-bit manufacturer code,
@@ -98,6 +98,9 @@ void setup () {
   
   DDRD |= 0x80;
   PORTD |= 0x80;
+  
+  pinMode(13,OUTPUT);
+  digitalWrite(13,HIGH);
 }
 
 void loop () {
@@ -484,6 +487,9 @@ void analizeInput (void) {
   Serial.println("END");
   */
   
+  digitalWrite(13,HIGH);
+  delay(10000);
+  digitalWrite(13,LOW);
   
   #ifdef Binary_Tag_Output         // Outputs the Read tag in binary over serial
     printBinary (finalArray);
