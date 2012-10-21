@@ -495,9 +495,8 @@ void analizeInput (void) {
   Serial.println("END");
   */
   
-  digitalWrite(13,HIGH);
-    delay(500);
-  digitalWrite(13,LOW);
+  
+    
   
   #ifdef Binary_Tag_Output         // Outputs the Read tag in binary over serial
     printBinary (finalArray);
@@ -511,4 +510,8 @@ void analizeInput (void) {
     printDecimal (finalArray);
   #endif
   Serial.flush();
+  
+  digitalWrite(13,HIGH);
+  delay(500);
+  digitalWrite(13,LOW);
 }
