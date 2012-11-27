@@ -108,11 +108,24 @@ class ThreaderParent:
 		print "ENDING"
 		self.running = 0
 
+
+	def interrupted (signum, frame):
+		# called when the timer times out
+		print 'interrupted'
+
 	def workerThread(self):
-		#serialConnection = serial.Serial(port=serialPort, baudrate=serialBaud)
+		#signal.signal(signal.SIGALRM, self.interrupted)
+		
+		serialConnection = serial.Serial(port=serialPort, baudrate=serialBaud, timeout=0)
 		print "STARTING WORKER THREAD"
 		while self.running:
-			tag = None#serialConnection.readline()
+			#signal.alarm(5) #set the timeout for 5 seconds 
+			try:
+				tag = serialConnection.readline()
+				print 'read tag'
+			except:
+				print 'timeout'
+				continue
 			if (tag): self.queue.put(tag)
 
 
@@ -126,8 +139,10 @@ def main():
 	display = ThreaderParent()
 	app.exec_()
 	print "DONE"
+	#display.thread.terminate()
 	display.running = False
-	sys.exit()
+	#sys.exit()
+	exit()
 
 ## run the main function ##
 if __name__ == '__main__':
