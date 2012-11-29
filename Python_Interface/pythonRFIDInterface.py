@@ -75,13 +75,21 @@ class mainWidget(QtGui.QWidget):
 
 
 
-## the threader parent class spaws a second thread to pass messages from containing the rfid tags ##
+############################# THREADER PARENT CLASS ############################
+# The threader parent class spawns a second thread to pass messages from the   #
+# rfid reader over the serial port to a queue which is read by the main qt     #
+# thread                                                                       #
+################################################################################
 class ThreaderParent:
+	############################# INIT THREADER PARENT #############################
+	# THe initilization function creates the queue, calls the QT main window       #
+	# generation class to generate the QT window, and then creates the thread for  #
+	# the serial port to read from                                                 #
+	################################################################################
 	def __init__(self):
 		print "WTHAT HE HELL"
 		# create a queue for message passing
 		self.queue = Queue.Queue()
-
 		print "CREATED QUEUE"
 		#instanciate the gui
 		self.gui = mainWindow(self.queue, self.endApplication)
@@ -97,36 +105,38 @@ class ThreaderParent:
 		self.thread = threading.Thread(target=self.workerThread)
 		self.thread.start()
 
-	# this fucntion gets called using a QTimer. It checks to see if there is anything in the queue and deals with it if there is ##
+	################################# PERIODIC CALL ################################
+	# THis function is called periodoicly by the QT timer to tell the Main QT      #
+	# Window to read data from the queue and update the display accordingly        #
+	################################################################################
 	def periodicCall(self):
 		self.gui.readQueue()
 		if not self.running:
 			root.quit()
 
-	# a function to cause this program to exit when the qt class exits
+	################################ END APPLICATION ###############################
+	# This function should be called by the QT main window class when the QT       #
+	# process ends, it sets the variable running to 0 so that the worker thread    #
+	# can quit when the main thread does                                           #
+	################################################################################
 	def endApplication(self):
 		print "ENDING"
 		self.running = 0
 
-
-	def interrupted (signum, frame):
-		# called when the timer times out
-		print 'interrupted'
-
+	################################# WORKER THREAD ################################
+	# The worker thread function is the function that is called to run inside the  #
+	# spawned thread. It handles reading from the serial connection, if it reads   #
+	# a valid tag then it puts it into a queue from wich the main thread can       #
+	# handle it                                                                    #
+	################################################################################
 	def workerThread(self):
-		#signal.signal(signal.SIGALRM, self.interrupted)
-		
 		serialConnection = serial.Serial(port=serialPort, baudrate=serialBaud, timeout=0)
 		print "STARTING WORKER THREAD"
 		while self.running:
-			#signal.alarm(5) #set the timeout for 5 seconds 
-			try:
-				tag = serialConnection.readline()
+			tag = serialConnection.readline()
+			if (tag):
+				self.queue.put(tag)
 				print 'read tag'
-			except:
-				print 'timeout'
-				continue
-			if (tag): self.queue.put(tag)
 
 
 
