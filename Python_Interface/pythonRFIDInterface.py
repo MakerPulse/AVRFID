@@ -24,15 +24,24 @@ class mainWindow(QtGui.QMainWindow):
 	## a function that sets up the menus and menu bars for the application
 	def initMenu(self):
 		# Exit the program button
-		exitAction = QtGui.QAction(QtGui.QIcon('exit24.png'), 'Exit', self)
+		exitAction = QtGui.QAction(QtGui.QIcon('window-close.png'), 'Exit', self)
 		exitAction.setShortcut('Ctrl+Q')
 		exitAction.setStatusTip('Exit Application')
 		exitAction.triggered.connect(self.close)
 
-		openSerialAction = QtGui.QAction(QtGui.QIcon('connect.png'),'Connect Reader',self)
+		openSerialAction = QtGui.QAction(QtGui.QIcon('network-connect-3.png'),'Connect Reader',self)
 		openSerialAction.setShortcut('Ctrl+R')
 		openSerialAction.setStatusTip('Connect the RFID Reader')
 		openSerialAction.triggered.connect(self.connectReader)
+
+		#newContactAction ############################################
+
+		openAttendanceAction = QtGui.QAction(QtGui.QIcon('document-open-recent-2.png'),'Open Attendace',self)
+		openAttendanceAction.setShortcut('Ctrl+O')
+		openAttendanceAction.setStatusTip('Open a previous attendance document')
+		openAttendanceAction.triggered.connect(self.openDocument)
+
+		#newAttendanceAction ###########################################
 
 		self.statusBar()
 
@@ -45,6 +54,9 @@ class mainWindow(QtGui.QMainWindow):
 		toolbar.addAction(exitAction)
 		toolbar.addAction(openSerialAction)
 
+	# This function will open a previously created attendance document
+	def openDocument(self):
+		pass
 	def connectReader(self):
 		# This function will open a window to allow the user to select which serial port the reader is on
 		pass
