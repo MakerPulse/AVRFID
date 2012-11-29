@@ -1,6 +1,6 @@
 import sys, serial, threading, random, Queue, time
 from PyQt4 import QtGui, QtCore
-serialPort = "/dev/ttyACM0"
+serialPort = "/dev/ttyACM1"
 serialBaud = 9600
 
 ## this is the main window class, it handles setting up the widnow and menu bars and maintining a connection with the worker thread. It also has the main widget loded in it
@@ -11,13 +11,15 @@ class mainWindow(QtGui.QMainWindow):
 		self.queue = queue
 		self.endcommand = endcommand
 
+		self.initUI()
+
 	## a function that sets up all of the uo elements needed for the GUI
 	def initUI(self):
-		initMenu()
+		self.initMenu()
 		self.splitterWidget = mainWidget()
 		self.setCentralWidget(self.splitterWidget)
 		self.setGeometry(100,100,800,700)
-		self.showWindowTitle('RFID READER SOFTWARE')
+		#self.showWindowTitle('RFID READER SOFTWARE')
 
 	## a function that sets up the menus and menu bars for the application
 	def initMenu(self):
@@ -41,7 +43,7 @@ class mainWindow(QtGui.QMainWindow):
 		while self.queue.qsize():
 			try:
 				tag = self.queue.get(0)
-				handleTag(tag)
+				self.handleTag(tag)
 			except Queue.Empty:
 				pass
 
@@ -53,7 +55,7 @@ class mainWindow(QtGui.QMainWindow):
 
 class mainWidget(QtGui.QWidget):
 	def __init__(self):
-		super(mainQWidget, self).__init__()
+		super(mainWidget, self).__init__()
 		self.initUI()
 
 	## this function intilizes the UI for the main widget which currently involves seting up two lists that get written to
