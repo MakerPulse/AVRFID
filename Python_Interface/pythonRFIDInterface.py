@@ -1,6 +1,6 @@
 import sys, serial, threading, random, Queue, time
 from PyQt4 import QtGui, QtCore
-serialPort = "/dev/ttyACM1"
+serialPort = "/dev/ttyACM0"
 serialBaud = 9600
 
 ## this is the main window class, it handles setting up the widnow and menu bars and maintining a connection with the worker thread. It also has the main widget loded in it
@@ -29,14 +29,25 @@ class mainWindow(QtGui.QMainWindow):
 		exitAction.setStatusTip('Exit Application')
 		exitAction.triggered.connect(self.close)
 
+		openSerialAction = QtGui.QAction(QtGui.QIcon('connect.png'),'Connect Reader',self)
+		openSerialAction.setShortcut('Ctrl+R')
+		openSerialAction.setStatusTip('Connect the RFID Reader')
+		openSerialAction.triggered.connect(self.connectReader)
+
 		self.statusBar()
 
 		menubar = self.menuBar()
 		fileMenu = menubar.addMenu('&File')
 		fileMenu.addAction(exitAction)
+		fileMenu.addAction(openSerialAction)
 
 		toolbar = self.addToolBar('Exit')
 		toolbar.addAction(exitAction)
+		toolbar.addAction(openSerialAction)
+
+	def connectReader(self):
+		# This function will open a window to allow the user to select which serial port the reader is on
+		pass
 
 	## This fucntion reads the queue and reacts to the elements it contains
 	def readQueue(self):
