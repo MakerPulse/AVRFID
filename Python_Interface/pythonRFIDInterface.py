@@ -69,14 +69,12 @@ class mainWindow(QtGui.QMainWindow):
 	# A wraper function for init menu that also sets the main widget of the        #
 	# QMainWindow and sizes window itself                                          #
 	################################################################################
-
 	def initUI(self):
 		self.initMenu()
 		self.splitterWidget = mainWidget()
 		self.setCentralWidget(self.splitterWidget)
 		self.setGeometry(100,100,800,700)
-		
-		#self.showWindowTitle('RFID READER SOFTWARE')
+		self.setWindowTitle('RPI-RFID Interface')
 
 	################################### INIT MENU ##################################
 	# This function initilizes the menu by creating all of the buttons and then    #
@@ -182,12 +180,16 @@ class mainWindow(QtGui.QMainWindow):
 class newPersonWidget(QtGui.QWidget):
 	def __init__(self,parent):
 		super(newPersonWidget, self).__init__()
+		
+		self.setWindowTitle('Add User')
+
 		y = (parent.geometry().height()-250)/2+parent.geometry().y()
 		x = (parent.geometry().width()-400)/2+parent.geometry().x()
 		self.setGeometry(x, y, 400, 250)
+
 		#self.setFixedSize(self.width(),self.height())
 
-		groupBox = QtGui.QGroupBox();
+		groupBox = QtGui.QGroupBox("Add User");
 		formLayout = QtGui.QFormLayout()
 		self.username = QtGui.QLineEdit("",self)
 		formLayout.addRow("&Name", self.username)
