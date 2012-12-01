@@ -31,7 +31,7 @@ class mainWindow(QtGui.QMainWindow):
 		exitAction = QtGui.QAction(QtGui.QIcon('window-close.png'), 'Exit', self)
 		exitAction.setShortcut('Ctrl+Q')
 		exitAction.setStatusTip('Exit Application')
-		exitAction.triggered.connect(self.close)
+		exitAction.triggered.connect(QtCore.QCoreApplication.instance().quit)
 
 		openSerialAction = QtGui.QAction(QtGui.QIcon('network-connect-3.png'),'Connect Reader',self)
 		openSerialAction.setShortcut('Ctrl+R')
@@ -79,10 +79,12 @@ class mainWindow(QtGui.QMainWindow):
 		toolbar.addAction(saveAttendance)
 
 	def newPerson(self):
-		pass
+		self.nperson = newPersonWidget()
+		self.nperson.show()
 	# This function will open a previously created attendance document
 	def openDocument(self):
 		pass
+
 	def connectReader(self):
 		# This function will open a window to allow the user to select which serial port the reader is on
 		pass
@@ -100,6 +102,22 @@ class mainWindow(QtGui.QMainWindow):
 	def handleTag(self,tag):
 		item = QtGui.QListWidgetItem("Tag %s" % tag[0:-2])
 		self.splitterWidget.tagListWidget.addItem(item)	
+
+class newPersonWidget(QtGui.QWidget):
+	def __init__(self):
+		super(newPersonWidget, self).__init__()
+		self.setGeometry(100, 100, 400, 200)
+		# textbox for name
+		# textbox for rfid data
+		# large textbox for extended data
+		# save button
+		# cancel button
+		self.cancelButton = QtGui.QPushButton("Cancel",self)
+		self.cancelButton.clicked.connect(self.close)
+
+	def cancel(self):
+		sys.exit()
+		
 
 class mainWidget(QtGui.QWidget):
 	def __init__(self):
@@ -180,7 +198,7 @@ class ThreaderParent:
 	# handle it                                                                    #
 	################################################################################
 	def workerThread(self):
-		serialConnection = serial.Serial(port=serialPort, baudrate=serialBaud, timeout=0)
+		serialConnection = serial.Serial(port=serialPort, baudrate=serialBaud)
 		print "STARTING WORKER THREAD"
 		fulltag = ""
 		while self.running:
