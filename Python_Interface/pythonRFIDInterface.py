@@ -143,11 +143,11 @@ class mainWindow(QtGui.QMainWindow):
 		reallyQuit =  QtGui.QMessageBox.question(self, 'Message', "Are you sure to quit?", QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
 		if reallyQuit == QtGui.QMessageBox.Yes:
 			QtCore.QCoreApplication.instance().quit()
+
 	############################### NEW PERSON POPUP ###############################
 	# The new person function creates a new person window and allows the user to   #
 	# add the new person to the database                                           #
 	################################################################################
-
 	def newPerson(self):
 		#self.move(self.x(), self.y())
 		self.nperson = newPersonWidget(self)
@@ -185,13 +185,36 @@ class newPersonWidget(QtGui.QWidget):
 		y = (parent.geometry().height()-250)/2+parent.geometry().y()
 		x = (parent.geometry().width()-400)/2+parent.geometry().x()
 		self.setGeometry(x, y, 400, 250)
-		self.setFixedSize(self.width(),self.height())
+		#self.setFixedSize(self.width(),self.height())
+
+		groupBox = QtGui.QGroupBox();
+		formLayout = QtGui.QFormLayout()
+		self.username = QtGui.QLineEdit("",self)
+		formLayout.addRow("&Name", self.username)
+		self.rfidTag = QtGui.QLineEdit("",self)
+		formLayout.addRow("&RFID:", self.rfidTag)
+		self.metadata = QtGui.QTextEdit("",self)
+		formLayout.addRow("&Metadata", self.metadata)
+		groupBox.setLayout(formLayout);
+		
+		mainLayout = QtGui.QVBoxLayout()
+		mainLayout.addWidget(groupBox)
+		
+
+		buttonBox = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Ok | QtGui.QDialogButtonBox.Cancel)
+		buttonBox.accepted.connect(self.save)
+		buttonBox.rejected.connect(self.close)
+		
+		mainLayout.addWidget(buttonBox)
+
+		self.setLayout(mainLayout)
+
 		# textbox for name
 		# textbox for rfid data
-		self.rfidTag = QtGui.QLineEdit("RFID",self)
-		self.rfidTag.move(50,0)
-		self.rfidLabel = QtGui.QLabel("RFID",self)
-		self.rfidLabel.setBuddy(self.rfidTag)
+		
+		#self.rfidTag.move(50,0)
+		#self.rfidLabel = QtGui.QLabel("RFID",self)
+		#self.rfidLabel.setBuddy(self.rfidTag)
 		#self.rfidTag = QtGui.QTextLine('RFID',self)
 
 		
@@ -199,21 +222,20 @@ class newPersonWidget(QtGui.QWidget):
 		#self.metadata = QtGui.QTextEdit("Text",self)
 
 		# save button
-		self.saveButton = QtGui.QPushButton("Save", self)
-		self.saveButton.clicked.connect(self.save)
-		#self.saveButton.resize(self.saveButton.sizeHint())
-		self.saveButton.resize(100,30)
-		self.saveButton.move(50,200)
-		# cancel button
-		self.cancelButton = QtGui.QPushButton("Cancel",self)
-		self.cancelButton.resize(100,30)
-		self.cancelButton.clicked.connect(self.close)
-		self.cancelButton.resize(100,30)
-		self.cancelButton.move(250,200)
-
+		# self.saveButton = QtGui.QPushButton("Save", self)
+		# self.saveButton.clicked.connect(self.save)
+		# #self.saveButton.resize(self.saveButton.sizeHint())
+		# self.saveButton.resize(100,30)
+		# self.saveButton.move(50,200)
+		# # cancel button
+		# self.cancelButton = QtGui.QPushButton("Cancel",self)
+		# self.cancelButton.resize(100,30)
+		# self.cancelButton.clicked.connect(self.close)
+		# self.cancelButton.resize(100,30)
+		# self.cancelButton.move(250,200)
 	def save(self):
 		# TODO save the new user in the database
-
+		print "pretending to"
 		# then close
 		self.close()
 		
