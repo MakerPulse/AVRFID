@@ -23,6 +23,7 @@ class mainWindow(QtGui.QMainWindow):
 		self.splitterWidget = mainWidget()
 		self.setCentralWidget(self.splitterWidget)
 		self.setGeometry(100,100,800,700)
+		
 		#self.showWindowTitle('RFID READER SOFTWARE')
 
 	## a function that sets up the menus and menu bars for the application
@@ -78,12 +79,14 @@ class mainWindow(QtGui.QMainWindow):
 		toolbar.addAction(newAttendanceAction)
 		toolbar.addAction(saveAttendance)
 
+
 	def closeApp(self):
 		reallyQuit =  QtGui.QMessageBox.question(self, 'Message', "Are you sure to quit?", QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
 		if reallyQuit == QtGui.QMessageBox.Yes:
 			QtCore.QCoreApplication.instance().quit()
 	def newPerson(self):
-		self.nperson = newPersonWidget()
+		#self.move(self.x(), self.y())
+		self.nperson = newPersonWidget(self)
 		self.nperson.show()
 	# This function will open a previously created attendance document
 	def openDocument(self):
@@ -108,9 +111,12 @@ class mainWindow(QtGui.QMainWindow):
 		self.splitterWidget.tagListWidget.addItem(item)	
 
 class newPersonWidget(QtGui.QWidget):
-	def __init__(self):
+	def __init__(self,parent):
 		super(newPersonWidget, self).__init__()
-		self.setGeometry(100, 100, 400, 250)
+		y = (parent.geometry().height()-250)/2+parent.geometry().y()
+		x = (parent.geometry().width()-400)/2+parent.geometry().x()
+		self.setGeometry(x, y, 400, 250)
+		self.setFixedSize(self.width(),self.height())
 		# textbox for name
 		# textbox for rfid data
 		# large textbox for extended data
