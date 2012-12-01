@@ -1,3 +1,51 @@
+################################### SIGNATURE ##################################
+#                                      ,,                                      #
+#                     db             `7MM                                      #
+#                    ;MM:              MM                                      #
+#                   ,V^MM.    ,pP"Ybd  MMpMMMb.  .gP"Ya `7Mb,od8               #
+#                  ,M  `MM    8I   `"  MM    MM ,M'   Yb  MM' "'               #
+#                  AbmmmqMA   `YMMMa.  MM    MM 8M""""""  MM                   #
+#                 A'     VML  L.   I8  MM    MM YM.    ,  MM                   #
+#               .AMA.   .AMMA.M9mmmP'.JMML  JMML.`Mbmmd'.JMML.                 #
+#                                                                              #
+#                                                                              #
+#                                  ,,    ,,                                    #
+#                      .g8"""bgd `7MM    db        `7MM                        #
+#                    .dP'     `M   MM                MM                        #
+#                    dM'       `   MM  `7MM  ,p6"bo  MM  ,MP'                  #
+#                    MM            MM    MM 6M'  OO  MM ;Y                     #
+#                    MM.    `7MMF' MM    MM 8M       MM;Mm                     #
+#                    `Mb.     MM   MM    MM YM.    , MM `Mb.                   #
+#                      `"bmmmdPY .JMML..JMML.YMbmd'.JMML. YA.                  #
+#                                                                              #
+################################################################################
+#################################### LICENSE ###################################
+# Copyright (c) 2012, Asher Glick                                              #
+# All rights reserved.                                                         #
+#                                                                              #
+# Redistribution and use in source and binary forms, with or without           #
+# modification, are permitted provided that the following conditions are met:  #
+#                                                                              #
+# * Redistributions of source code must retain the above copyright notice,     #
+# this                                                                         #
+#   list of conditions and the following disclaimer.                           #
+# * Redistributions in binary form must reproduce the above copyright notice,  #
+#   this list of conditions and the following disclaimer in the documentation  #
+#   and/or other materials provided with the distribution.                     #
+#                                                                              #
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"  #
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE    #
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE   #
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE    #
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR          #
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF         #
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS     #
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN      #
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)      #
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE   #
+# POSSIBILITY OF SUCH DAMAGE.                                                  #
+################################################################################
+
 import sys, serial, threading, random, Queue, time
 from PyQt4 import QtGui, QtCore
 serialPort = "/dev/ttyACM0"
@@ -17,7 +65,11 @@ class mainWindow(QtGui.QMainWindow):
 
 		self.initUI()
 
-	## a function that sets up all of the uo elements needed for the GUI
+	#################################### INIT UI ###################################
+	# A wraper function for init menu that also sets the main widget of the        #
+	# QMainWindow and sizes window itself                                          #
+	################################################################################
+
 	def initUI(self):
 		self.initMenu()
 		self.splitterWidget = mainWidget()
@@ -26,7 +78,10 @@ class mainWindow(QtGui.QMainWindow):
 		
 		#self.showWindowTitle('RFID READER SOFTWARE')
 
-	## a function that sets up the menus and menu bars for the application
+	################################### INIT MENU ##################################
+	# This function initilizes the menu by creating all of the buttons and then    #
+	# adding them to the menu bar and the toolbar                                  #
+	################################################################################
 	def initMenu(self):
 		# Exit the program button
 		exitAction = QtGui.QAction(QtGui.QIcon('window-close.png'), 'Exit', self)
@@ -79,16 +134,26 @@ class mainWindow(QtGui.QMainWindow):
 		toolbar.addAction(newAttendanceAction)
 		toolbar.addAction(saveAttendance)
 
-
+	############################### CLOSE APPLICATION ##############################
+	# This function prompts the user if they would like to exit the program and    #
+	# if they click yes then the entire program exits, not just the selected       #
+	# window                                                                       #
+	################################################################################
 	def closeApp(self):
 		reallyQuit =  QtGui.QMessageBox.question(self, 'Message', "Are you sure to quit?", QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
 		if reallyQuit == QtGui.QMessageBox.Yes:
 			QtCore.QCoreApplication.instance().quit()
+	############################### NEW PERSON POPUP ###############################
+	# The new person function creates a new person window and allows the user to   #
+	# add the new person to the database                                           #
+	################################################################################
+
 	def newPerson(self):
 		#self.move(self.x(), self.y())
 		self.nperson = newPersonWidget(self)
 		self.nperson.show()
 	# This function will open a previously created attendance document
+	
 	def openDocument(self):
 		pass
 
@@ -96,7 +161,11 @@ class mainWindow(QtGui.QMainWindow):
 		# This function will open a window to allow the user to select which serial port the reader is on
 		pass
 
-	## This fucntion reads the queue and reacts to the elements it contains
+	################################ READ TAG QUEUE ################################
+	# The read queue function attemts to read anythin in the queue until it is     #
+	# empty. Each itereation that a tag is removed from the queue it is passed to  #
+	# the handle tag function to add it to the current attendance document         #
+	################################################################################
 	def readQueue(self):
 		while self.queue.qsize():
 			try:
@@ -119,7 +188,16 @@ class newPersonWidget(QtGui.QWidget):
 		self.setFixedSize(self.width(),self.height())
 		# textbox for name
 		# textbox for rfid data
+		self.rfidTag = QtGui.QLineEdit("RFID",self)
+		self.rfidTag.move(50,0)
+		self.rfidLabel = QtGui.QLabel("RFID",self)
+		self.rfidLabel.setBuddy(self.rfidTag)
+		#self.rfidTag = QtGui.QTextLine('RFID',self)
+
+		
 		# large textbox for extended data
+		#self.metadata = QtGui.QTextEdit("Text",self)
+
 		# save button
 		self.saveButton = QtGui.QPushButton("Save", self)
 		self.saveButton.clicked.connect(self.save)
@@ -135,6 +213,7 @@ class newPersonWidget(QtGui.QWidget):
 
 	def save(self):
 		# TODO save the new user in the database
+
 		# then close
 		self.close()
 		
