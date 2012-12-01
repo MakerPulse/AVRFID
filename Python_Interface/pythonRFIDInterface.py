@@ -31,7 +31,7 @@ class mainWindow(QtGui.QMainWindow):
 		exitAction = QtGui.QAction(QtGui.QIcon('window-close.png'), 'Exit', self)
 		exitAction.setShortcut('Ctrl+Q')
 		exitAction.setStatusTip('Exit Application')
-		exitAction.triggered.connect(QtCore.QCoreApplication.instance().quit)
+		exitAction.triggered.connect(self.closeApp)
 
 		openSerialAction = QtGui.QAction(QtGui.QIcon('network-connect-3.png'),'Connect Reader',self)
 		openSerialAction.setShortcut('Ctrl+R')
@@ -78,6 +78,10 @@ class mainWindow(QtGui.QMainWindow):
 		toolbar.addAction(newAttendanceAction)
 		toolbar.addAction(saveAttendance)
 
+	def closeApp(self):
+		reallyQuit =  QtGui.QMessageBox.question(self, 'Message', "Are you sure to quit?", QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
+		if reallyQuit == QtGui.QMessageBox.Yes:
+			QtCore.QCoreApplication.instance().quit()
 	def newPerson(self):
 		self.nperson = newPersonWidget()
 		self.nperson.show()
