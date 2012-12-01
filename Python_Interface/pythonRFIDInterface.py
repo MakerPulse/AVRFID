@@ -3,7 +3,11 @@ from PyQt4 import QtGui, QtCore
 serialPort = "/dev/ttyACM0"
 serialBaud = 9600
 
-## this is the main window class, it handles setting up the widnow and menu bars and maintining a connection with the worker thread. It also has the main widget loded in it
+################################ MAIN QT WINDOW ################################
+# This is the main window class it handles setting up the window and menu      #
+# bars and maintaining a connectino with teh worker thread. It also is in      #
+# charge of loading the main widget inside of itself                           #
+################################################################################
 class mainWindow(QtGui.QMainWindow):
 	def __init__(self, queue, endcommand):
 		super(mainWindow, self).__init__()
@@ -96,7 +100,6 @@ class mainWindow(QtGui.QMainWindow):
 	def handleTag(self,tag):
 		item = QtGui.QListWidgetItem("Tag %s" % tag[0:-2])
 		self.splitterWidget.tagListWidget.addItem(item)	
-
 
 class mainWidget(QtGui.QWidget):
 	def __init__(self):
