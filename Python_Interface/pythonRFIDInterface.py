@@ -70,7 +70,7 @@ class mainWindow(QtGui.QMainWindow):
 		fileMenu.addAction(newAttendanceAction)
 		fileMenu.addAction(saveAttendance)
 
-		toolbar = self.addToolBar('Exit')
+		toolbar = self.addToolBar('Commands')
 		toolbar.addAction(exitAction)
 		toolbar.addAction(openSerialAction)
 		toolbar.addAction(newContactAction)
@@ -106,17 +106,27 @@ class mainWindow(QtGui.QMainWindow):
 class newPersonWidget(QtGui.QWidget):
 	def __init__(self):
 		super(newPersonWidget, self).__init__()
-		self.setGeometry(100, 100, 400, 200)
+		self.setGeometry(100, 100, 400, 250)
 		# textbox for name
 		# textbox for rfid data
 		# large textbox for extended data
 		# save button
+		self.saveButton = QtGui.QPushButton("Save", self)
+		self.saveButton.clicked.connect(self.save)
+		#self.saveButton.resize(self.saveButton.sizeHint())
+		self.saveButton.resize(100,30)
+		self.saveButton.move(50,200)
 		# cancel button
 		self.cancelButton = QtGui.QPushButton("Cancel",self)
+		self.cancelButton.resize(100,30)
 		self.cancelButton.clicked.connect(self.close)
+		self.cancelButton.resize(100,30)
+		self.cancelButton.move(250,200)
 
-	def cancel(self):
-		sys.exit()
+	def save(self):
+		# TODO save the new user in the database
+		# then close
+		self.close()
 		
 
 class mainWidget(QtGui.QWidget):
