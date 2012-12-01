@@ -179,11 +179,17 @@ class ThreaderParent:
 	def workerThread(self):
 		serialConnection = serial.Serial(port=serialPort, baudrate=serialBaud, timeout=0)
 		print "STARTING WORKER THREAD"
+		fulltag = ""
 		while self.running:
-			tag = serialConnection.readline()
-			if (tag):
-				self.queue.put(tag)
-				print 'read tag'
+			tag = serialConnection.read()
+			if (tag == '\n'):
+				self.queue.put(fulltag)
+				fulltag = ""
+				#print 'read tag'
+				continue
+			if (tag == '\r'):
+				continue
+			fulltag += tag
 
 
 
