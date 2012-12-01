@@ -198,7 +198,7 @@ class ThreaderParent:
 	# handle it                                                                    #
 	################################################################################
 	def workerThread(self):
-		serialConnection = serial.Serial(port=serialPort, baudrate=serialBaud)
+		serialConnection = serial.Serial(port=serialPort, baudrate=serialBaud, timeout=0)
 		print "STARTING WORKER THREAD"
 		fulltag = ""
 		while self.running:
