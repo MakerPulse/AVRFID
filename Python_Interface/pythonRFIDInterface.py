@@ -34,14 +34,26 @@ class mainWindow(QtGui.QMainWindow):
 		openSerialAction.setStatusTip('Connect the RFID Reader')
 		openSerialAction.triggered.connect(self.connectReader)
 
-		#newContactAction ############################################
+		newContactAction = QtGui.QAction(QtGui.QIcon('contact-new-3.png'), 'New Person', self)
+		newContactAction.setShortcut('Ctrl+M')
+		newContactAction.setStatusTip('Create a new Person')
+		newContactAction.triggered.connect(self.newPerson)
 
 		openAttendanceAction = QtGui.QAction(QtGui.QIcon('document-open-recent-2.png'),'Open Attendace',self)
 		openAttendanceAction.setShortcut('Ctrl+O')
 		openAttendanceAction.setStatusTip('Open a previous attendance document')
 		openAttendanceAction.triggered.connect(self.openDocument)
 
-		#newAttendanceAction ###########################################
+		newAttendanceAction = QtGui.QAction(QtGui.QIcon('new-attendance.png'),'New Attendace',self)
+		newAttendanceAction.setShortcut('Ctrl+N')
+		newAttendanceAction.setStatusTip('Creates a new attendance document')
+		newAttendanceAction.triggered.connect(self.openDocument)
+
+		saveAttendance = QtGui.QAction(QtGui.QIcon('document-save-2.png'),'Save Attendace',self)
+		saveAttendance.setShortcut('Ctrl+S')
+		saveAttendance.setStatusTip('Saves the attendance document')
+		saveAttendance.triggered.connect(self.openDocument)
+
 
 		self.statusBar()
 
@@ -49,11 +61,21 @@ class mainWindow(QtGui.QMainWindow):
 		fileMenu = menubar.addMenu('&File')
 		fileMenu.addAction(exitAction)
 		fileMenu.addAction(openSerialAction)
+		fileMenu.addAction(newContactAction)
+		fileMenu.addAction(openAttendanceAction)
+		fileMenu.addAction(newAttendanceAction)
+		fileMenu.addAction(saveAttendance)
 
 		toolbar = self.addToolBar('Exit')
 		toolbar.addAction(exitAction)
 		toolbar.addAction(openSerialAction)
+		toolbar.addAction(newContactAction)
+		toolbar.addAction(openAttendanceAction)
+		toolbar.addAction(newAttendanceAction)
+		toolbar.addAction(saveAttendance)
 
+	def newPerson(self):
+		pass
 	# This function will open a previously created attendance document
 	def openDocument(self):
 		pass
