@@ -180,6 +180,7 @@ class mainWindow(QtGui.QMainWindow):
 
 	IDRelation = {}
 	def loadDatabase(self):
+		self.splitterWidget.namelist.textChanged.connect(self.updateNameTable)
 		f = open("Sample_Database")
 		for line in f:
 			splitline = line.split(',')
@@ -190,7 +191,8 @@ class mainWindow(QtGui.QMainWindow):
 			self.IDRelation[rfid] = name
 		self.updateNameTable("Eduardo")
 
-	def updateNameTable(self,text):
+	def updateNameTable(self,QText):
+		text = str(QText)
 		firstOrder = []
 		secondOrder = []
 		thirdOrder = []
@@ -199,6 +201,7 @@ class mainWindow(QtGui.QMainWindow):
 			if text in name:
 				thirdOrder.append(name)
 
+		self.splitterWidget.namelistWidget.clear()
 
 		for name in thirdOrder:
 			#item = QtGui.QListWidgetItem("%s\t%s"%(rfid,name))
