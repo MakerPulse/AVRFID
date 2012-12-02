@@ -180,16 +180,12 @@ class mainWindow(QtGui.QMainWindow):
 class newPersonWidget(QtGui.QWidget):
 	def __init__(self,parent):
 		super(newPersonWidget, self).__init__()
-		
 		self.setWindowTitle('Add User')
-
 		y = (parent.geometry().height()-250)/2+parent.geometry().y()
 		x = (parent.geometry().width()-400)/2+parent.geometry().x()
 		self.setGeometry(x, y, 400, 250)
 
-		#self.setFixedSize(self.width(),self.height())
-
-		groupBox = QtGui.QGroupBox("Add User");
+		
 		formLayout = QtGui.QFormLayout()
 		self.username = QtGui.QLineEdit("",self)
 		formLayout.addRow("&Name", self.username)
@@ -197,47 +193,21 @@ class newPersonWidget(QtGui.QWidget):
 		formLayout.addRow("&RFID:", self.rfidTag)
 		self.metadata = QtGui.QTextEdit("",self)
 		formLayout.addRow("&Metadata", self.metadata)
+		groupBox = QtGui.QGroupBox("Add User");
 		groupBox.setLayout(formLayout);
-		
-		mainLayout = QtGui.QVBoxLayout()
-		mainLayout.addWidget(groupBox)
-		
 
 		buttonBox = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Ok | QtGui.QDialogButtonBox.Cancel)
 		buttonBox.accepted.connect(self.save)
 		buttonBox.rejected.connect(self.close)
 		
+		mainLayout = QtGui.QVBoxLayout()
+		mainLayout.addWidget(groupBox)
 		mainLayout.addWidget(buttonBox)
-
 		self.setLayout(mainLayout)
 
-		# textbox for name
-		# textbox for rfid data
-		
-		#self.rfidTag.move(50,0)
-		#self.rfidLabel = QtGui.QLabel("RFID",self)
-		#self.rfidLabel.setBuddy(self.rfidTag)
-		#self.rfidTag = QtGui.QTextLine('RFID',self)
-
-		
-		# large textbox for extended data
-		#self.metadata = QtGui.QTextEdit("Text",self)
-
-		# save button
-		# self.saveButton = QtGui.QPushButton("Save", self)
-		# self.saveButton.clicked.connect(self.save)
-		# #self.saveButton.resize(self.saveButton.sizeHint())
-		# self.saveButton.resize(100,30)
-		# self.saveButton.move(50,200)
-		# # cancel button
-		# self.cancelButton = QtGui.QPushButton("Cancel",self)
-		# self.cancelButton.resize(100,30)
-		# self.cancelButton.clicked.connect(self.close)
-		# self.cancelButton.resize(100,30)
-		# self.cancelButton.move(250,200)
 	def save(self):
 		# TODO save the new user in the database
-		print "pretending to"
+		print "pretending to save"
 		# then close
 		self.close()
 		
@@ -252,11 +222,22 @@ class mainWidget(QtGui.QWidget):
 		hbox = QtGui.QHBoxLayout(self)
 
 		self.tagListWidget = QtGui.QListWidget()
+
+		
+
 		self.namelistWidget = QtGui.QListWidget()
+		self.namelist = QtGui.QLineEdit("",self)
+		self.namelist.setPlaceholderText("Search Names ...")
+		groupBox = QtGui.QVBoxLayout(self)
+		groupBox.addWidget(self.namelist)
+		groupBox.addWidget(self.namelistWidget)
+		groupBox.setMargin(0)
+		groupBoxWidget = QtGui.QWidget()
+		groupBoxWidget.setLayout(groupBox)
 
 		splitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
 		splitter.addWidget(self.tagListWidget)
-		splitter.addWidget(self.namelistWidget)
+		splitter.addWidget(groupBoxWidget)
 
 		hbox.addWidget(splitter)
 		self.setLayout(hbox)
