@@ -64,6 +64,7 @@ class mainWindow(QtGui.QMainWindow):
 		self.endcommand = endcommand
 
 		self.initUI()
+		self.loadDatabase()
 
 	#################################### INIT UI ###################################
 	# A wraper function for init menu that also sets the main widget of the        #
@@ -176,6 +177,34 @@ class mainWindow(QtGui.QMainWindow):
 	def handleTag(self,tag):
 		item = QtGui.QListWidgetItem("Tag %s" % tag[0:-2])
 		self.splitterWidget.tagListWidget.addItem(item)	
+
+	IDRelation = {}
+	def loadDatabase(self):
+		f = open("Sample_Database")
+		for line in f:
+			splitline = line.split(',')
+			rfid = splitline[0]
+			name = splitline[1]
+			#item = QtGui.QListWidgetItem("%s\t%s"%(rfid,name))
+			#self.splitterWidget.namelistWidget.addItem(item)
+			self.IDRelation[rfid] = name
+		self.updateNameTable("Eduardo")
+
+	def updateNameTable(self,text):
+		firstOrder = []
+		secondOrder = []
+		thirdOrder = []
+		for rfid in self.IDRelation:
+			name = self.IDRelation[rfid]
+			if text in name:
+				thirdOrder.append(name)
+
+
+		for name in thirdOrder:
+			#item = QtGui.QListWidgetItem("%s\t%s"%(rfid,name))
+			item = QtGui.QListWidgetItem("%s"%(name))
+			self.splitterWidget.namelistWidget.addItem(item)
+
 
 class newPersonWidget(QtGui.QWidget):
 	def __init__(self,parent):
