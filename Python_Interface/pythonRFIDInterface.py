@@ -188,8 +188,8 @@ class mainWindow(QtGui.QMainWindow):
 			name = splitline[1]
 			#item = QtGui.QListWidgetItem("%s\t%s"%(rfid,name))
 			#self.splitterWidget.namelistWidget.addItem(item)
-			self.IDRelation[rfid] = name
-		self.updateNameTable("Eduardo")
+			self.IDRelation[rfid] = name[:-1]
+		self.updateNameTable("")
 
 	def updateNameTable(self,QText):
 		text = str(QText)
