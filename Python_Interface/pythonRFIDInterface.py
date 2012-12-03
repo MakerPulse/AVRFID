@@ -270,7 +270,7 @@ class mainWidget(QtGui.QWidget):
 		thirdOrder = []
 		for rfid in self.IDRelation:
 			name = self.IDRelation[rfid]
-			if text in name:
+			if text.lower() in name.lower():
 				thirdOrder.append(name)
 
 		self.namelistWidget.clear()
