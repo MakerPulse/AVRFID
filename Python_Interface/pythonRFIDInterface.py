@@ -20,7 +20,7 @@
 #                                                                              #
 ################################################################################
 #################################### LICENSE ###################################
-# Copyright (c) 2012, Asher Glick                                              #
+# Copyright (c) 2012, Asher Glick                                              #oucgh
 # All rights reserved.                                                         #
 #                                                                              #
 # Redistribution and use in source and binary forms, with or without           #
@@ -64,7 +64,7 @@ class mainWindow(QtGui.QMainWindow):
 		self.endcommand = endcommand
 
 		self.initUI()
-		self.loadDatabase()
+		
 
 	#################################### INIT UI ###################################
 	# A wraper function for init menu that also sets the main widget of the        #
@@ -178,35 +178,7 @@ class mainWindow(QtGui.QMainWindow):
 		item = QtGui.QListWidgetItem("Tag %s" % tag[0:-2])
 		self.splitterWidget.tagListWidget.addItem(item)	
 
-	IDRelation = {}
-	def loadDatabase(self):
-		self.splitterWidget.namelist.textChanged.connect(self.updateNameTable)
-		f = open("Sample_Database")
-		for line in f:
-			splitline = line.split(',')
-			rfid = splitline[0]
-			name = splitline[1]
-			#item = QtGui.QListWidgetItem("%s\t%s"%(rfid,name))
-			#self.splitterWidget.namelistWidget.addItem(item)
-			self.IDRelation[rfid] = name[:-1]
-		self.updateNameTable("")
-
-	def updateNameTable(self,QText):
-		text = str(QText)
-		firstOrder = []
-		secondOrder = []
-		thirdOrder = []
-		for rfid in self.IDRelation:
-			name = self.IDRelation[rfid]
-			if text in name:
-				thirdOrder.append(name)
-
-		self.splitterWidget.namelistWidget.clear()
-
-		for name in thirdOrder:
-			#item = QtGui.QListWidgetItem("%s\t%s"%(rfid,name))
-			item = QtGui.QListWidgetItem("%s"%(name))
-			self.splitterWidget.namelistWidget.addItem(item)
+	
 
 
 class newPersonWidget(QtGui.QWidget):
@@ -237,6 +209,8 @@ class newPersonWidget(QtGui.QWidget):
 		mainLayout.addWidget(buttonBox)
 		self.setLayout(mainLayout)
 
+		
+
 	def save(self):
 		# TODO save the new user in the database
 		print "pretending to save"
@@ -248,6 +222,7 @@ class mainWidget(QtGui.QWidget):
 	def __init__(self):
 		super(mainWidget, self).__init__()
 		self.initUI()
+		self.loadDatabase()
 
 	## this function intilizes the UI for the main widget which currently involves seting up two lists that get written to
 	def initUI(self):
@@ -274,6 +249,36 @@ class mainWidget(QtGui.QWidget):
 		hbox.addWidget(splitter)
 		self.setLayout(hbox)
 		QtGui.QApplication.setStyle(QtGui.QStyleFactory.create('Cleanlooks'))
+
+	IDRelation = {}
+	def loadDatabase(self):
+		self.namelist.textChanged.connect(self.updateNameTable)
+		f = open("Sample_Database")
+		for line in f:
+			splitline = line.split(',')
+			rfid = splitline[0]
+			name = splitline[1]
+			#item = QtGui.QListWidgetItem("%s\t%s"%(rfid,name))
+			#self.splitterWidget.namelistWidget.addItem(item)
+			self.IDRelation[rfid] = name[:-1]
+		self.updateNameTable("")
+
+	def updateNameTable(self,QText):
+		text = str(QText)
+		firstOrder = []
+		secondOrder = []
+		thirdOrder = []
+		for rfid in self.IDRelation:
+			name = self.IDRelation[rfid]
+			if text in name:
+				thirdOrder.append(name)
+
+		self.namelistWidget.clear()
+
+		for name in thirdOrder:
+			#item = QtGui.QListWidgetItem("%s\t%s"%(rfid,name))
+			item = QtGui.QListWidgetItem("%s"%(name))
+			self.namelistWidget.addItem(item)
 
 	
 
