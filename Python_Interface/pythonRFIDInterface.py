@@ -184,6 +184,9 @@ class mainWindow(QtGui.QMainWindow):
 class newPersonWidget(QtGui.QWidget):
 	def __init__(self,parent):
 		super(newPersonWidget, self).__init__()
+
+		self.parentWindow = parent
+
 		self.setWindowTitle('Add User')
 		y = (parent.geometry().height()-250)/2+parent.geometry().y()
 		x = (parent.geometry().width()-400)/2+parent.geometry().x()
@@ -213,11 +216,23 @@ class newPersonWidget(QtGui.QWidget):
 
 	def save(self):
 		# TODO save the new user in the database
-		print "pretending to save"
+		# print "pretending to save"
+		rfid = str(self.rfidTag.text())
+		name = str(self.username.text())
+
+		print rfid, name
+
+		self.parentWindow.splitterWidget.IDRelation[rfid] = name
+		self.parentWindow.splitterWidget.updateNameTable()
+		
 		# then close
 		self.close()
 		
-
+################################ MAIN QT WIDGET ################################
+# The main qt widget handles all of the ui inside of the main window. This     #
+# mainly includes the two list views displaying all of the students as well    #
+# as just the students selected. Allong with the ability to search those lists #
+################################################################################
 class mainWidget(QtGui.QWidget):
 	def __init__(self):
 		super(mainWidget, self).__init__()
@@ -263,7 +278,9 @@ class mainWidget(QtGui.QWidget):
 			self.IDRelation[rfid] = name[:-1]
 		self.updateNameTable("")
 
-	def updateNameTable(self,QText):
+	def updateNameTable(self,QText=None):
+		if QText == None:
+			QText = str(self.namelist.text())
 		text = str(QText)
 		firstOrder = []
 		secondOrder = []
