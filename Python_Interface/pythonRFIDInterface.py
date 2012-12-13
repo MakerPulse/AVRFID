@@ -20,7 +20,7 @@
 #                                                                              #
 ################################################################################
 #################################### LICENSE ###################################
-# Copyright (c) 2012, Asher Glick                                              #oucgh
+# Copyright (c) 2012, Asher Glick                                              #
 # All rights reserved.                                                         #
 #                                                                              #
 # Redistribution and use in source and binary forms, with or without           #
@@ -47,6 +47,7 @@
 ################################################################################
 
 import sys, serial, threading, random, Queue, time
+import serial.tools.list_ports
 from PyQt4 import QtGui, QtCore
 serialPort = "/dev/ttyACM0"
 serialBaud = 9600
@@ -328,6 +329,7 @@ class ThreaderParent:
 		print "CRATED TIMER"
 		# Create a thread to read the serial port
 		self.running = 1
+		self.openPorts = serial.tools.list_ports.comports()
 		self.thread = threading.Thread(target=self.workerThread)
 		self.thread.start()
 
@@ -339,6 +341,28 @@ class ThreaderParent:
 		self.gui.readQueue()
 		if not self.running:
 			root.quit()
+		else:
+			# get the current list of serial divices
+			currentPorts = serial.tools.list_ports.comports()
+
+			# find all new ports
+			newPorts = []
+			for port in currentPorts:
+				if port not in self.openPorts:
+					newPorts.append(port)
+					print "NEW PORT:", port
+			# find all removed ports
+			closedPorts = []
+			for port in self.openPorts:
+				if port not in currentPorts:
+					closedPorts.append(port)
+					print "CLOSED PORT:", port
+
+			# set the current ports to the open ports
+			self.openPorts = currentPorts
+			#print "---"
+			#for i in currentPorts:
+			#	print i
 
 	################################ END APPLICATION ###############################
 	# This function should be called by the QT main window class when the QT       #
