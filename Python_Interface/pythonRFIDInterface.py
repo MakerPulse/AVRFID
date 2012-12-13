@@ -49,7 +49,7 @@
 import sys, serial, threading, random, Queue, time
 import serial.tools.list_ports
 from PyQt4 import QtGui, QtCore
-serialPort = "/dev/ttyACM0"
+#serialPort = "/dev/ttyACM0"
 serialBaud = 9600
 
 ################################ MAIN QT WINDOW ################################
@@ -298,10 +298,6 @@ class mainWidget(QtGui.QWidget):
 			item = QtGui.QListWidgetItem("%s"%(name))
 			self.namelistWidget.addItem(item)
 
-	
-
-
-
 ############################# THREADER PARENT CLASS ############################
 # The threader parent class spawns a second thread to pass messages from the   #
 # rfid reader over the serial port to a queue which is read by the main qt     #
@@ -330,8 +326,8 @@ class ThreaderParent:
 		# Create a thread to read the serial port
 		self.running = 1
 		self.openPorts = serial.tools.list_ports.comports()
-		self.thread = threading.Thread(target=self.workerThread)
-		self.thread.start()
+		self.thread = []
+		
 
 	################################# PERIODIC CALL ################################
 	# THis function is called periodoicly by the QT timer to tell the Main QT      #
@@ -351,6 +347,8 @@ class ThreaderParent:
 				if port not in self.openPorts:
 					newPorts.append(port)
 					print "NEW PORT:", port
+					self.thread.append(threading.Thread(target=self.workerThread,args=(port)))
+					self.thread[-1].start()
 			# find all removed ports
 			closedPorts = []
 			for port in self.openPorts:
@@ -379,9 +377,12 @@ class ThreaderParent:
 	# a valid tag then it puts it into a queue from wich the main thread can       #
 	# handle it                                                                    #
 	################################################################################
-	def workerThread(self):
+	def workerThread(self,serialPort,serialName, serialVIN):
 		serialConnection = serial.Serial(port=serialPort, baudrate=serialBaud, timeout=0)
-		print "STARTING WORKER THREAD"
+		print "STARTING WORKER THREAD:"
+		print " WORKER PORT:", serialPort
+		print " WORKER NAME:", serialName
+		print " WORKER VIN:", serialVIN
 		fulltag = ""
 		while self.running:
 			tag = serialConnection.read()
