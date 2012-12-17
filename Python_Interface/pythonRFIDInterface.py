@@ -342,7 +342,7 @@ class ThreaderParent:
 			currentPorts = serial.tools.list_ports.comports()
 			print "STARTING PERIODIC CALL"
 
-
+			print "LENGTH OF CURRENT PORTS", len(currentPorts)
 			for port in currentPorts:
 				print port
 
@@ -367,6 +367,7 @@ class ThreaderParent:
 			print "RESETTING PORTS"
 			self.openPorts = currentPorts
 			print "RESET PORTS"
+			print "LENGTH OF CURRENT PORTS", len(currentPorts)
 			for port in currentPorts:
 				print port
 
