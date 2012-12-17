@@ -375,14 +375,24 @@ class ThreaderParent:
 	# handle it                                                                    #
 	################################################################################
 	def workerThread(self,serialPort,serialName, serialVIN):
-		serialConnection = serial.Serial(port=serialPort, baudrate=serialBaud, timeout=0)
+		try:
+			serialConnection = serial.Serial(port=serialPort, baudrate=serialBaud, timeout=0)
+		except:
+			print "ERROR INITILIZING THE CONNECTION TO", serialPort, "CLOSING THREAD"
+			return
+
+
 		print "STARTING WORKER THREAD:"
 		print " WORKER PORT:", serialPort
 		print " WORKER NAME:", serialName
 		print " WORKER VIN:", serialVIN
 		fulltag = ""
 		while self.running:
-			tag = serialConnection.read()
+			try:
+				tag = serialConnection.read()
+			except:
+				print "ERROR READING FROM ", serialPort, "CLOSING THREAD"
+				return
 			if (tag == '\n'):
 				self.queue.put(fulltag)
 				fulltag = ""
