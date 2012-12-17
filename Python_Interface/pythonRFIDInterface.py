@@ -340,6 +340,8 @@ class ThreaderParent:
 		else:
 			# get the current list of serial divices
 			currentPorts = serial.tools.list_ports.comports()
+			print "STARTING PERIODIC CALL"
+
 
 			for port in currentPorts:
 				print port
@@ -367,6 +369,8 @@ class ThreaderParent:
 			print "RESET PORTS"
 			for port in currentPorts:
 				print port
+
+			print "FUNCTION DONE"
 
 	################################ END APPLICATION ###############################
 	# This function should be called by the QT main window class when the QT       #
