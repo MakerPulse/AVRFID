@@ -341,7 +341,11 @@ class ThreaderParent:
 			# get the current list of serial divices
 			currentPorts = serial.tools.list_ports.comports()
 
+			for port in currentPorts:
+				print port
+
 			# find all new ports
+			print "LOOKING FOR NEW PORTS"
 			newPorts = []
 			for port in currentPorts:
 				if port not in self.openPorts:
@@ -350,6 +354,7 @@ class ThreaderParent:
 					#self.thread.append(threading.Thread(target=self.workerThread,args=(port)))
 					#self.thread[-1].start()
 			# find all removed ports
+			print "LOOKING FOR CLOSED PORTS"
 			closedPorts = []
 			for port in self.openPorts:
 				if port not in currentPorts:
@@ -357,6 +362,7 @@ class ThreaderParent:
 					print "CLOSED PORT:", port
 
 			# set the current ports to the open ports
+			print "RESETTING PORTS"
 			self.openPorts = currentPorts
 
 			for port in currentPorts:
