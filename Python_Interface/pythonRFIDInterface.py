@@ -347,8 +347,8 @@ class ThreaderParent:
 				if port not in self.openPorts:
 					newPorts.append(port)
 					print "NEW PORT:", port
-					self.thread.append(threading.Thread(target=self.workerThread,args=(port)))
-					self.thread[-1].start()
+					#self.thread.append(threading.Thread(target=self.workerThread,args=(port)))
+					#self.thread[-1].start()
 			# find all removed ports
 			closedPorts = []
 			for port in self.openPorts:
