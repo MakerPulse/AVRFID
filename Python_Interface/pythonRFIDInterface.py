@@ -349,6 +349,7 @@ class ThreaderParent:
 					print "NEW PORT:", port
 					self.thread.append(threading.Thread(target=self.workerThread,args=(port)))
 					self.thread[-1].start()
+					print "STARTED:", port
 			# find all removed ports
 			closedPorts = []
 			for port in self.openPorts:
