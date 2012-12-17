@@ -339,7 +339,7 @@ class ThreaderParent:
 			root.quit()
 		else:
 			# get the current list of serial divices
-			currentPorts = serial.tools.list_ports.comports()
+			currentPorts = list(serial.tools.list_ports.comports())
 			print "STARTING PERIODIC CALL"
 
 			print "LENGTH OF CURRENT PORTS", len(currentPorts)
