@@ -364,7 +364,7 @@ class ThreaderParent:
 			# set the current ports to the open ports
 			print "RESETTING PORTS"
 			self.openPorts = currentPorts
-
+			print "RESET PORTS"
 			for port in currentPorts:
 				print port
 
