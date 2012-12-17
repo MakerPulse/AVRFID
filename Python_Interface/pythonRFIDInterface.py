@@ -359,6 +359,9 @@ class ThreaderParent:
 			# set the current ports to the open ports
 			self.openPorts = currentPorts
 
+			for port in currentPorts:
+				print port
+
 	################################ END APPLICATION ###############################
 	# This function should be called by the QT main window class when the QT       #
 	# process ends, it sets the variable running to 0 so that the worker thread    #
