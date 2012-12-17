@@ -304,6 +304,7 @@ class mainWidget(QtGui.QWidget):
 # thread                                                                       #
 ################################################################################
 class ThreaderParent:
+	
 	############################# INIT THREADER PARENT #############################
 	# THe initilization function creates the queue, calls the QT main window       #
 	# generation class to generate the QT window, and then creates the thread for  #
@@ -328,7 +329,6 @@ class ThreaderParent:
 		self.openPorts = serial.tools.list_ports.comports()
 		self.thread = []
 		
-
 	################################# PERIODIC CALL ################################
 	# THis function is called periodoicly by the QT timer to tell the Main QT      #
 	# Window to read data from the queue and update the display accordingly        #
@@ -358,9 +358,6 @@ class ThreaderParent:
 
 			# set the current ports to the open ports
 			self.openPorts = currentPorts
-			#print "---"
-			#for i in currentPorts:
-			#	print i
 
 	################################ END APPLICATION ###############################
 	# This function should be called by the QT main window class when the QT       #
@@ -394,11 +391,6 @@ class ThreaderParent:
 			if (tag == '\r'):
 				continue
 			fulltag += tag
-
-
-
-
-
 
 ## the main function ##
 def main():
