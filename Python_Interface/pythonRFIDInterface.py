@@ -176,10 +176,11 @@ class mainWindow(QtGui.QMainWindow):
 
 	## this fucntion handles the tags and how to add them to the database it also handles how to add the tag to the lists contained within
 	def handleTag(self,tag):
-		item = QtGui.QListWidgetItem("Tag %s" % tag[0:-2])
-		self.splitterWidget.tagListWidget.addItem(item)
+		#item = QtGui.QListWidgetItem("Tag %s" % tag[0:-2])
+		#self.splitterWidget.tagListWidget.addItem(item)
 
-		self.splitterWidget.tagRelation[tag]
+		self.splitterWidget.tagList.append(tag)
+		self.splitterWidget.updateTagTable()
 
 	
 
@@ -317,9 +318,11 @@ class mainWidget(QtGui.QWidget):
 		tagRelation = {}
 	def updateTagTable(self, QText=None):
 		# QText will be used to sort the tag table, but for now it will not be used
-		for i in tagList:
-			if (i in IDRelation):
-				i = IDRelation[i]
+
+		self.tagListWidget.clear()
+		for i in self.tagList:
+			if (i in self.IDRelation):
+				i = self.IDRelation[i]
 			else:
 				i = "Unknown Tag "+i
 			item = QtGui.QListWidgetItem("%s"%(i))
