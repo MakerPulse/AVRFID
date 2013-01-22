@@ -177,7 +177,9 @@ class mainWindow(QtGui.QMainWindow):
 	## this fucntion handles the tags and how to add them to the database it also handles how to add the tag to the lists contained within
 	def handleTag(self,tag):
 		item = QtGui.QListWidgetItem("Tag %s" % tag[0:-2])
-		self.splitterWidget.tagListWidget.addItem(item)	
+		self.splitterWidget.tagListWidget.addItem(item)
+
+		self.splitterWidget.tagRelation[tag]
 
 	
 
@@ -305,6 +307,24 @@ class mainWidget(QtGui.QWidget):
 			item = QtGui.QListWidgetItem("%s"%(name))
 			self.namelistWidget.addItem(item)
 
+
+	tagList = []
+	def loadTagTable (self):
+		pass
+	def saveTagTable (self):
+		pass
+	def newTagTable (self):
+		tagRelation = {}
+	def updateTagTable(self, QText=None):
+		# QText will be used to sort the tag table, but for now it will not be used
+		for i in tagList:
+			if (i in IDRelation):
+				i = IDRelation[i]
+			else:
+				i = "Unknown Tag "+i
+			item = QtGui.QListWidgetItem("%s"%(i))
+			self.tagListWidget.addItem(item)
+
 ############################# THREADER PARENT CLASS ############################
 # The threader parent class spawns a second thread to pass messages from the   #
 # rfid reader over the serial port to a queue which is read by the main qt     #
@@ -347,24 +367,24 @@ class ThreaderParent:
 		else:
 			# get the current list of serial divices
 			currentPorts = list(serial.tools.list_ports.comports())
-			print "STARTING PERIODIC CALL"
+			###print "STARTING PERIODIC CALL"
 
-			print "LENGTH OF CURRENT PORTS", len(currentPorts)
+			###print "LENGTH OF CURRENT PORTS", len(currentPorts)
 			#for port in currentPorts:
 			#	print port
 
 			# find all new ports
-			print "LOOKING FOR NEW PORTS"
+			###print "LOOKING FOR NEW PORTS"
 			newPorts = []
 			for port in currentPorts:
 				if port not in self.openPorts:
 					newPorts.append(port)
-					#print "NEW PORT:", port
-					#self.thread.append(threading.Thread(target=self.workerThread,args=(port)))
-					#self.thread[-1].start()
+					print "NEW PORT:", port
+					self.thread.append(threading.Thread(target=self.workerThread,args=(port)))
+					self.thread[-1].start()
 			
 			# find all removed ports
-			print "LOOKING FOR CLOSED PORTS"
+			###print "LOOKING FOR CLOSED PORTS"
 			closedPorts = []
 			for port in self.openPorts:
 				if port not in currentPorts:
@@ -372,14 +392,14 @@ class ThreaderParent:
 					print "CLOSED PORT:", port
 
 			# set the current ports to the open ports
-			print "RESETTING PORTS"
+			###print "RESETTING PORTS"
 			self.openPorts = currentPorts
-			print "RESET PORTS"
-			print "LENGTH OF CURRENT PORTS", len(currentPorts)
-			for port in currentPorts:
-				print port
+			###print "RESET PORTS"
+			###print "LENGTH OF CURRENT PORTS", len(currentPorts)
+			###for port in currentPorts:
+			###	print port
 
-			print "FUNCTION DONE"
+			###print "FUNCTION DONE"
 
 	################################ END APPLICATION ###############################
 	# This function should be called by the QT main window class when the QT       #
