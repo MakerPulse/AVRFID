@@ -253,7 +253,7 @@ class newPersonWidget(QtGui.QWidget):
 		self.parentWindow.splitterWidget.IDRelation[rfid] = name
 		self.parentWindow.splitterWidget.updateNameTable()
 		self.parentWindow.splitterWidget.updateTagTable()
-		
+		self.parentWindow.splitterWidget.saveDatabase()
 		# then close
 		self.close()
 		
@@ -306,6 +306,13 @@ class mainWidget(QtGui.QWidget):
 			#self.splitterWidget.namelistWidget.addItem(item)
 			self.IDRelation[rfid] = name[:-1]
 		self.updateNameTable("")
+	
+	def saveDatabase(self):
+		savefile = open("Sample_Database",'w')
+		for tag in self.IDRelation:
+			csvLine = tag + "," + self.IDRelation[tag] 
+			savefile.write(csvLine+'\n')
+		savefile.close()
 
 	############################### UPDATE NAME TABLE ##############################
 	# THis function updates the the the contents of the list view containing the   #
