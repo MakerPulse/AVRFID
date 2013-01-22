@@ -279,6 +279,13 @@ class mainWidget(QtGui.QWidget):
 			self.IDRelation[rfid] = name[:-1]
 		self.updateNameTable("")
 
+	############################### UPDATE NAME TABLE ##############################
+	# THis function updates the the the contents of the list view containing the   #
+	# name table. If the variable QText is specified then only elements of the     #
+	# original list that contain that text will be included in the displayed       #
+	# list. If the variable is not set then it will be set equal to the contents   #
+	# of the text box above the list                                               #
+	################################################################################
 	def updateNameTable(self,QText=None):
 		if QText == None:
 			QText = str(self.namelist.text())
@@ -343,8 +350,8 @@ class ThreaderParent:
 			print "STARTING PERIODIC CALL"
 
 			print "LENGTH OF CURRENT PORTS", len(currentPorts)
-			for port in currentPorts:
-				print port
+			#for port in currentPorts:
+			#	print port
 
 			# find all new ports
 			print "LOOKING FOR NEW PORTS"
@@ -355,6 +362,7 @@ class ThreaderParent:
 					#print "NEW PORT:", port
 					#self.thread.append(threading.Thread(target=self.workerThread,args=(port)))
 					#self.thread[-1].start()
+			
 			# find all removed ports
 			print "LOOKING FOR CLOSED PORTS"
 			closedPorts = []
