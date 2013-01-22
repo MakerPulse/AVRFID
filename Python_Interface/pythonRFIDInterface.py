@@ -147,7 +147,15 @@ class mainWindow(QtGui.QMainWindow):
 		self.nperson.show()
 	# This function will open a previously created attendance document
 	
-	def openDocument(self):
+	def openAttendanceSheet(self):
+		filename = QtGui.QFileDialog.getSaveFileName(self, "Save File", "", ".conf")
+		print "Tried to open/save file", filename
+		pass
+	def saveAttendanceSheet(self):
+		pass
+	def newAttendanceSheet(self):
+		# Prompt the user if they are sure they would like to delete the current sheet and start another
+		# call the subclass's action to clear the attendance
 		pass
 
 	################################ READ TAG QUEUE ################################
