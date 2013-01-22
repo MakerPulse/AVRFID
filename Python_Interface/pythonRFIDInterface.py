@@ -97,17 +97,17 @@ class mainWindow(QtGui.QMainWindow):
 		openAttendanceAction = QtGui.QAction(QtGui.QIcon('document-open-recent-2.png'),'Open Attendace',self)
 		openAttendanceAction.setShortcut('Ctrl+O')
 		openAttendanceAction.setStatusTip('Open a previous attendance document')
-		openAttendanceAction.triggered.connect(self.openDocument)
+		openAttendanceAction.triggered.connect(self.openAttendanceSheet)
 
 		newAttendanceAction = QtGui.QAction(QtGui.QIcon('new-attendance.png'),'New Attendace',self)
 		newAttendanceAction.setShortcut('Ctrl+N')
 		newAttendanceAction.setStatusTip('Creates a new attendance document')
-		newAttendanceAction.triggered.connect(self.openDocument)
+		newAttendanceAction.triggered.connect(self.newAttendanceSheet)
 
 		saveAttendance = QtGui.QAction(QtGui.QIcon('document-save-2.png'),'Save Attendace',self)
 		saveAttendance.setShortcut('Ctrl+S')
 		saveAttendance.setStatusTip('Saves the attendance document')
-		saveAttendance.triggered.connect(self.openDocument)
+		saveAttendance.triggered.connect(self.saveAttendanceSheet)
 
 
 		self.statusBar()
@@ -155,8 +155,11 @@ class mainWindow(QtGui.QMainWindow):
 		pass
 	def newAttendanceSheet(self):
 		# Prompt the user if they are sure they would like to delete the current sheet and start another
+		deleteSheetResponce =  QtGui.QMessageBox.question(self, 'Message', "Are you sure to delete the current attendance sheet and start a new one?", QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
 		# call the subclass's action to clear the attendance
-		pass
+		if deleteSheetResponce == QtGui.QMessageBox.Yes:
+			self.splitterWidget.newTagTable()
+			self.splitterWidget.updateTagTable()
 
 	################################ READ TAG QUEUE ################################
 	# The read queue function attemts to read anythin in the queue until it is     #
@@ -225,6 +228,7 @@ class newPersonWidget(QtGui.QWidget):
 
 		self.parentWindow.splitterWidget.IDRelation[rfid] = name
 		self.parentWindow.splitterWidget.updateNameTable()
+		self.parentWindow.splitterWidget.updateTagTable()
 		
 		# then close
 		self.close()
@@ -312,7 +316,7 @@ class mainWidget(QtGui.QWidget):
 	def saveTagTable (self):
 		pass
 	def newTagTable (self):
-		tagRelation = {}
+		self.tagList = []
 	def updateTagTable(self, QText=None):
 		# QText will be used to sort the tag table, but for now it will not be used
 
