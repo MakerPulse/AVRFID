@@ -64,7 +64,10 @@ class mainWindow(QtGui.QMainWindow):
 		self.queue = queue
 		self.endcommand = endcommand
 
+		self.sheetModified = False
+
 		self.initUI()
+
 		
 
 	#################################### INIT UI ###################################
@@ -148,18 +151,37 @@ class mainWindow(QtGui.QMainWindow):
 	# This function will open a previously created attendance document
 	
 	def openAttendanceSheet(self):
-		filename = QtGui.QFileDialog.getSaveFileName(self, "Save File", "", ".conf")
-		print "Tried to open/save file", filename
-		pass
+		if self.sheetModified == True:
+			# Prompt the user if they are sure they would like to delete the current sheet and start another
+			deleteSheetResponce =  QtGui.QMessageBox.question(self, 'Message', "Are you sure to delete the current attendance sheet and start a new one?", QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
+			# call the subclass's action to clear the attendance
+			if deleteSheetResponce == QtGui.QMessageBox.No:
+				return
+		
+		filename = QtGui.QFileDialog.getOpenFileName(self, "Open File", "", "")
+		if filename == "":
+			return
+		self.splitterWidget.loadTagTable(filename)
+		
 	def saveAttendanceSheet(self):
-		pass
+		filename = QtGui.QFileDialog.getSaveFileName(self, "Save File", "todays date", ".rfid")
+		# check to see if the user did not specify a file to save
+		if filename == "":
+			return
+		self.modified = False
+		
+		self.splitterWidget.saveTagTable(filename)
+
 	def newAttendanceSheet(self):
-		# Prompt the user if they are sure they would like to delete the current sheet and start another
-		deleteSheetResponce =  QtGui.QMessageBox.question(self, 'Message', "Are you sure to delete the current attendance sheet and start a new one?", QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
-		# call the subclass's action to clear the attendance
-		if deleteSheetResponce == QtGui.QMessageBox.Yes:
-			self.splitterWidget.newTagTable()
-			self.splitterWidget.updateTagTable()
+		if self.sheetModified == True:
+			# Prompt the user if they are sure they would like to delete the current sheet and start another
+			deleteSheetResponce =  QtGui.QMessageBox.question(self, 'Message', "Are you sure to delete the current attendance sheet and start a new one?", QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
+			# call the subclass's action to clear the attendance
+			if deleteSheetResponce == QtGui.QMessageBox.No:
+				return
+		self.splitterWidget.newTagTable()
+		self.splitterWidget.updateTagTable()
+		self.sheetModified = False
 
 	################################ READ TAG QUEUE ################################
 	# The read queue function attemts to read anythin in the queue until it is     #
@@ -181,6 +203,8 @@ class mainWindow(QtGui.QMainWindow):
 
 		self.splitterWidget.tagList.append(tag)
 		self.splitterWidget.updateTagTable()
+
+		self.sheetModified = True
 
 	
 
@@ -311,12 +335,31 @@ class mainWidget(QtGui.QWidget):
 
 	# The tag list stores the list of tags that have been swiped in durring this session
 	tagList = []
-	def loadTagTable (self):
-		pass
-	def saveTagTable (self):
-		pass
+	def loadTagTable (self, filename):
+		print "Tried to open file", filename
+		self.newTagTable()
+		loadFile = open(filename)
+		for line in loadFile:
+			line = line.rstrip().lstrip()
+			splitline = line.split(',')
+			self.tagList.append(splitline[0]) #add only the rfid tag to the tag list, all the other data will be collected from the database
+		loadFile.close()
+		self.updateTagTable()
+
+	def saveTagTable (self, filename):
+		print "Tried to save file", filename
+		savefile = open(filename,'w')
+		for tag in self.tagList:
+			csvLine = tag
+			if tag in self.IDRelation:
+				# for all the other attribtes of the relation will be added to the csv here too
+				csvLine += ","+self.IDRelation[tag]
+			savefile.write(csvLine+'\n')
+		savefile.close()
+
 	def newTagTable (self):
 		self.tagList = []
+
 	def updateTagTable(self, QText=None):
 		# QText will be used to sort the tag table, but for now it will not be used
 
