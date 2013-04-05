@@ -65,6 +65,7 @@ void setup () {
   // USART INITILIZATION
   Serial.begin(9600);
   Serial.println("Finished setup");
+  //Serial.end();
   //Serial1.countBuffer(9600);
   //Serial1.println("Serial  1");
   //Serial2.countBuffer(9600);
@@ -84,7 +85,7 @@ void setup () {
   //__enable_interrupt();
   EIMSK = 0x00;
   EICRA = 0x30; // configure interupt INT2 B 0011 0000
-  enableAntenna();
+  //enableAntenna();
   //__disable_interrupt();
   sei();
   Serial.println("Finished setup");
@@ -104,6 +105,7 @@ void setup () {
 }
 
 void loop () {
+  Serial.end();
   enableAntenna();
   //__enable_interrupt();  
   while (1) { // while the card is being read
@@ -119,7 +121,7 @@ void loop () {
   }  
   //Serial.println("Finished array");
   //PORTB &= ~0x1C;
-  
+  Serial.begin(9600);
   //analize the array of input
   analizeInput ();
   
@@ -208,7 +210,6 @@ int getDecimalFromBinary (int * array, int length) {
   }
   return result;
 }
-
 
 
 void recurseDecimal (unsigned int val) {
