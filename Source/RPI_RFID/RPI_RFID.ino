@@ -4,7 +4,7 @@
 \******************************************************************************/
 
 //#define Binary_Tag_Output         // Outputs the Read tag in binary over serial
-#define Hexadecimal_Tag_Output    // Outputs the read tag in Hexadecimal over serial
+//#define Hexadecimal_Tag_Output    // Outputs the read tag in Hexadecimal over serial
 //#define Decimal_Tag_Output        // Outputs the read tag in decimal
 
 #define Manufacturer_ID_Output    // The output will contain the Manufacturer ID (NOT IMPLEMENTED)
@@ -324,7 +324,9 @@ void printBinary (int array[45]) {
 \******************************************************************************/
 void convertRawDataToBinary (bufferType * buffer) {
   int i;
+  int outputOffset = 0;
   //Serial.print("FULL BUFFER");
+  buffer[0] = -2;
   for (i = 1; i < ARRAYSIZE; i++) {
     /*
     if (buffer[i] == 5) {
@@ -338,21 +340,24 @@ void convertRawDataToBinary (bufferType * buffer) {
     }*/
     //Serial.print(int(buffer[i]));
     //Serial.print('|');
+    
     if (buffer[i] <= 8 && buffer[i] >= 6) {
-      buffer[i] = 0;
+      buffer[i-outputOffset] = 0;
     }
     else if (buffer[i] >= 10 && buffer[i] <= 18) {
-      buffer[i] = 1;
+      buffer[i-outputOffset] = 1;
     }
     else if (buffer[i] == 9) {
-      buffer[i] = buffer[i-1];
+      buffer[i-outputOffset] = buffer[i-outputOffset-1];
     }
     else {
-      buffer[i] = -2;
+      outputOffset++;//increase the offset so that this element gets overwritten by the next element instead
+      buffer[ARRAYSIZE-outputOffset] = -2; // Set the end of the array to a -2 to prevent previous data from carrying over
     }
-    //Serial.print(int(buffer[i]));
+    
+    Serial.print(int(buffer[i-outputOffset]));
   }
-  //Serial.println("");
+  Serial.println("");
 }
 /******************************* FIND START TAG *******************************\
 | This function goes through the buffer and tries to find a group of fifteen   |
@@ -419,7 +424,8 @@ void parseMultiBitToSingleBit (bufferType * buffer, int startOffset, int outputB
       inARow = 1;
       lastVal = buffer[i];
       if (resultArray_index >= 90) {
-        //return;
+        Serial.println("Out of bounds error");
+        return;
       }
     }
   }
@@ -435,8 +441,10 @@ void parseMultiBitToSingleBit (bufferType * buffer, int startOffset, int outputB
 | 4) Converts manchester code (100110) to binary code (010)                   |
 \*****************************************************************************/
 void analizeInput (void) {
+  Serial.println ("READ ");
+  
   int i;                // Generic for loop 'i' counter
-  int resultArray[90];  // Parsed Bit code in manchester
+  int resultArray[91];  // Parsed Bit code in manchester
   int finalArray[45];   //Parsed Bit Code out of manchester
   int finalArray_index = 0;
   
@@ -446,7 +454,11 @@ void analizeInput (void) {
   
   // Convert raw data to binary
   convertRawDataToBinary (countBuffer);
-    
+  
+  
+  
+  
+  
   // Find Start Tag
   int startOffset = findStartTag(countBuffer);
   //PORTB |= 0x10; // turn an led on on pin B5)
@@ -454,6 +466,8 @@ void analizeInput (void) {
   // Parse multibit data to single bit data
   parseMultiBitToSingleBit(countBuffer, startOffset, resultArray);
   
+    
+  //return;
     
   /*
   Serial.print("SINGLE BIT BUFFER: ");
@@ -466,6 +480,7 @@ void analizeInput (void) {
   // Error checking, see if there are any unset elements of the array
   for (i = 0; i < 88; i++) { // ignore the parody bit ([88] and [89])
     if (resultArray[i] == 2) {
+      Serial.println("BAD-UNSET ELEMENT");
       return;
     }
   }
@@ -484,6 +499,11 @@ void analizeInput (void) {
     else {
       // The read code is not in manchester, ignore this read tag and try again
       // free the allocated memory and end the function
+      Serial.println("BAD-NONMANCHESTER");
+      for (int j = 0; j < 88; j++) {
+        Serial.print(resultArray[j]);
+      }
+      Serial.println("");
       return;
     }
     finalArray_index++;
@@ -510,7 +530,6 @@ void analizeInput (void) {
   #ifdef Decimal_Tag_Output
     printDecimal (finalArray);
   #endif
-  Serial.flush();
   
   digitalWrite(13,HIGH);
   delay(500);
