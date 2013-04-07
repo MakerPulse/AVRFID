@@ -4,7 +4,7 @@
 \******************************************************************************/
 
 //#define Binary_Tag_Output         // Outputs the Read tag in binary over serial
-//#define Hexadecimal_Tag_Output    // Outputs the read tag in Hexadecimal over serial
+#define Hexadecimal_Tag_Output    // Outputs the read tag in Hexadecimal over serial
 //#define Decimal_Tag_Output        // Outputs the read tag in decimal
 
 #define Manufacturer_ID_Output    // The output will contain the Manufacturer ID (NOT IMPLEMENTED)
@@ -355,9 +355,9 @@ void convertRawDataToBinary (bufferType * buffer) {
       buffer[ARRAYSIZE-outputOffset] = -2; // Set the end of the array to a -2 to prevent previous data from carrying over
     }
     
-    Serial.print(int(buffer[i-outputOffset]));
+    //Serial.print(int(buffer[i-outputOffset]));
   }
-  Serial.println("");
+  //Serial.println("");
 }
 /******************************* FIND START TAG *******************************\
 | This function goes through the buffer and tries to find a group of fifteen   |
@@ -424,7 +424,7 @@ void parseMultiBitToSingleBit (bufferType * buffer, int startOffset, int outputB
       inARow = 1;
       lastVal = buffer[i];
       if (resultArray_index >= 90) {
-        Serial.println("Out of bounds error");
+        //Serial.println("Out of bounds error");
         return;
       }
     }
@@ -441,7 +441,7 @@ void parseMultiBitToSingleBit (bufferType * buffer, int startOffset, int outputB
 | 4) Converts manchester code (100110) to binary code (010)                   |
 \*****************************************************************************/
 void analizeInput (void) {
-  Serial.println ("READ ");
+  //Serial.println ("READ ");
   
   int i;                // Generic for loop 'i' counter
   int resultArray[91];  // Parsed Bit code in manchester
@@ -480,7 +480,7 @@ void analizeInput (void) {
   // Error checking, see if there are any unset elements of the array
   for (i = 0; i < 88; i++) { // ignore the parody bit ([88] and [89])
     if (resultArray[i] == 2) {
-      Serial.println("BAD-UNSET ELEMENT");
+      //Serial.println("BAD-UNSET ELEMENT");
       return;
     }
   }
@@ -499,11 +499,11 @@ void analizeInput (void) {
     else {
       // The read code is not in manchester, ignore this read tag and try again
       // free the allocated memory and end the function
-      Serial.println("BAD-NONMANCHESTER");
-      for (int j = 0; j < 88; j++) {
-        Serial.print(resultArray[j]);
-      }
-      Serial.println("");
+      //Serial.println("BAD-NONMANCHESTER");
+      //for (int j = 0; j < 88; j++) {
+      //  Serial.print(resultArray[j]);
+      //}
+      //Serial.println("");
       return;
     }
     finalArray_index++;
