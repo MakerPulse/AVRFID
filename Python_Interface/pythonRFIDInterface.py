@@ -210,7 +210,7 @@ class mainWindow(QtGui.QMainWindow):
 
 
 class newPersonWidget(QtGui.QWidget):
-	def __init__(self,parent):
+	def __init__(self,parent,tag=""):
 		super(newPersonWidget, self).__init__()
 
 		self.parentWindow = parent
@@ -224,7 +224,7 @@ class newPersonWidget(QtGui.QWidget):
 		formLayout = QtGui.QFormLayout()
 		self.username = QtGui.QLineEdit("",self)
 		formLayout.addRow("&Name", self.username)
-		self.rfidTag = QtGui.QLineEdit("",self)
+		self.rfidTag = QtGui.QLineEdit(tag,self)
 		formLayout.addRow("&RFID:", self.rfidTag)
 		self.metadata = QtGui.QTextEdit("",self)
 		formLayout.addRow("&Metadata", self.metadata)
@@ -293,6 +293,9 @@ class mainWidget(QtGui.QWidget):
 		hbox.addWidget(splitter)
 		self.setLayout(hbox)
 		QtGui.QApplication.setStyle(QtGui.QStyleFactory.create('Cleanlooks'))
+
+		self.tagListWidget.itemDoubleClicked.connect(self.editTag)
+
 
 	IDRelation = {}
 	def loadDatabase(self):
@@ -378,6 +381,16 @@ class mainWidget(QtGui.QWidget):
 				i = "Unknown Tag "+i
 			item = QtGui.QListWidgetItem("%s"%(i))
 			self.tagListWidget.addItem(item)
+
+	def editTag(self, listItem):
+		tagToModify = str(listItem.text())
+		if tagToModify[0:12] == "Unknown Tag ":
+			print "UNKNOWN TAG"
+			tag = tagToModify[12:] 
+			# Call edit function with just the RFID Tag
+			self.nperson = newPersonWidget(self, tag=tag)
+			self.nperson.show()
+
 
 ############################# THREADER PARENT CLASS ############################
 # The threader parent class spawns a second thread to pass messages from the   #
