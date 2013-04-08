@@ -76,7 +76,7 @@ class mainWindow(QtGui.QMainWindow):
 	################################################################################
 	def initUI(self):
 		self.initMenu()
-		self.splitterWidget = mainWidget()
+		self.splitterWidget = mainWidget(self)
 		self.setCentralWidget(self.splitterWidget)
 		self.setGeometry(100,100,800,700)
 		self.setWindowTitle('RPI-RFID Interface')
@@ -263,10 +263,11 @@ class newPersonWidget(QtGui.QWidget):
 # as just the students selected. Allong with the ability to search those lists #
 ################################################################################
 class mainWidget(QtGui.QWidget):
-	def __init__(self):
+	def __init__(self,parent):
 		super(mainWidget, self).__init__()
 		self.initUI()
 		self.loadDatabase()
+		self.parent = parent
 
 	## this function intilizes the UI for the main widget which currently involves seting up two lists that get written to
 	def initUI(self):
@@ -388,7 +389,7 @@ class mainWidget(QtGui.QWidget):
 			print "UNKNOWN TAG"
 			tag = tagToModify[12:] 
 			# Call edit function with just the RFID Tag
-			self.nperson = newPersonWidget(self, tag=tag)
+			self.nperson = newPersonWidget(self.parent, tag=tag)
 			self.nperson.show()
 
 
