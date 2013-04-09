@@ -46,7 +46,7 @@
 # POSSIBILITY OF SUCH DAMAGE.                                                  #
 ################################################################################
 
-import sys, serial, threading, random, Queue, time
+import sys, serial, threading, random, Queue, time, pyaudio, wave
 import serial.tools.list_ports
 from PyQt4 import QtGui, QtCore
 #serialPort = "/dev/ttyACM0"
@@ -205,6 +205,10 @@ class mainWindow(QtGui.QMainWindow):
 		self.splitterWidget.updateTagTable()
 
 		self.sheetModified = True
+
+		loadNoise()
+		playNoise()
+		endNoise()
 
 	
 
@@ -513,7 +517,46 @@ class ThreaderParent:
 			fulltag += tag
 
 ## the main function ##
+
+CHUNK = 1024
+p = None
+wf = None
+stream = None
+data = None
+
+def playNoise():
+	global data
+	while data != '':
+		stream.write(data)
+		data = wf.readframes(CHUNK)
+	stream.stop_stream()
+
+def loadNoise():
+	global wf
+	global p
+	global stream
+	global data
+
+	wf = wave.open("ping.wav", 'rb')
+
+	p = pyaudio.PyAudio()
+
+	stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
+				channels=wf.getnchannels(),
+				rate=wf.getframerate(),
+				output=True)
+
+	data = wf.readframes(CHUNK)
+
+def endNoise():
+	
+	stream.close()
+
+	p.terminate()
+
+
 def main():
+	#loadNoise();
 	app = QtGui.QApplication(sys.argv)
 	display = ThreaderParent()
 	app.exec_()
@@ -521,6 +564,7 @@ def main():
 	#display.thread.terminate()
 	display.running = False
 	#sys.exit()
+	#endNoise()
 	exit()
 
 ## run the main function ##
