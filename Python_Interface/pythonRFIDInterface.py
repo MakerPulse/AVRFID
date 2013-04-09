@@ -206,9 +206,9 @@ class mainWindow(QtGui.QMainWindow):
 
 		self.sheetModified = True
 
-		loadNoise()
+		#loadNoise()
 		playNoise()
-		endNoise()
+		#endNoise()
 
 	
 
@@ -520,22 +520,31 @@ class ThreaderParent:
 
 CHUNK = 1024
 p = None
-wf = None
 stream = None
 data = None
 
 def playNoise():
-	global data
+
+ 	thread = threading.Thread(target=playNoise_Thread)
+ 	thread.start()
+
+def playNoise_Thread():
+	
+	stream.start_stream()
+
+	wf = wave.open("ping.wav", 'rb')
+	data = wf.readframes(CHUNK)
 	while data != '':
 		stream.write(data)
 		data = wf.readframes(CHUNK)
+
+	wf.close()
 	stream.stop_stream()
 
+
 def loadNoise():
-	global wf
 	global p
 	global stream
-	global data
 
 	wf = wave.open("ping.wav", 'rb')
 
@@ -545,18 +554,18 @@ def loadNoise():
 				channels=wf.getnchannels(),
 				rate=wf.getframerate(),
 				output=True)
-
-	data = wf.readframes(CHUNK)
+	wf.close()
+	
 
 def endNoise():
-	
+
 	stream.close()
 
 	p.terminate()
 
 
 def main():
-	#loadNoise();
+	loadNoise();
 	app = QtGui.QApplication(sys.argv)
 	display = ThreaderParent()
 	app.exec_()
@@ -564,7 +573,7 @@ def main():
 	#display.thread.terminate()
 	display.running = False
 	#sys.exit()
-	#endNoise()
+	endNoise()
 	exit()
 
 ## run the main function ##
