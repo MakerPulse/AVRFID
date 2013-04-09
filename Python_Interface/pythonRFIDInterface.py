@@ -46,7 +46,7 @@
 # POSSIBILITY OF SUCH DAMAGE.                                                  #
 ################################################################################
 
-import sys, serial, threading, random, Queue, time, pyaudio, wave
+import sys, serial, threading, random, Queue, time, pyaudio, wave, datetime
 import serial.tools.list_ports
 from PyQt4 import QtGui, QtCore
 #serialPort = "/dev/ttyACM0"
@@ -164,7 +164,10 @@ class mainWindow(QtGui.QMainWindow):
 		self.splitterWidget.loadTagTable(filename)
 		
 	def saveAttendanceSheet(self):
-		filename = QtGui.QFileDialog.getSaveFileName(self, "Save File", "todays date", ".rfid")
+		now = datetime.datetime.now()
+		months = ["January","Febuary","March","April", "May", "June", "July", "Augest", "September", "October", "November", "December"]
+		todaysDate = months[now.month-1]+"-"+str(now.day)+"-"+str(now.year)
+		filename = QtGui.QFileDialog.getSaveFileName(self, "Save File", "Attendance-"+todaysDate+".rfid", ".rfid")
 		# check to see if the user did not specify a file to save
 		if filename == "":
 			return
