@@ -382,7 +382,7 @@ class mainWidget(QtGui.QWidget):
 		# QText will be used to sort the tag table, but for now it will not be used
 
 		self.tagListWidget.clear()
-		for i in self.tagList:
+		for i in reversed(self.tagList):
 			if (i in self.IDRelation):
 				i = self.IDRelation[i]
 			else:
