@@ -148,8 +148,13 @@ class mainWindow(QtGui.QMainWindow):
 		#self.move(self.x(), self.y())
 		self.nperson = newPersonWidget(self)
 		self.nperson.show()
-	# This function will open a previously created attendance document
-	
+
+	############################# OPEN ATTENDANCE SHEET ############################
+	# THis function opens a file dialog to search for a document to open. If a     #
+	# file is selected then it is opened. If the current file is modified then a   #
+	# message box prompt is also shown to ask the user if they want to delete the  #
+	# current unsaved attendance sheet                                             #
+	################################################################################
 	def openAttendanceSheet(self):
 		if self.sheetModified == True:
 			# Prompt the user if they are sure they would like to delete the current sheet and start another
@@ -162,7 +167,12 @@ class mainWindow(QtGui.QMainWindow):
 		if filename == "":
 			return
 		self.splitterWidget.loadTagTable(filename)
-		
+	
+	############################# SAVE ATTENDANCE SHEET ############################
+	# This function will save the current attendance sheet. The default name for   #
+	# the saved file is set to todays date. If the file is saved then the global   #
+	# 'modified' variable is set to false                                          #
+	################################################################################
 	def saveAttendanceSheet(self):
 		now = datetime.datetime.now()
 		months = ["January","Febuary","March","April", "May", "June", "July", "Augest", "September", "October", "November", "December"]
@@ -175,6 +185,12 @@ class mainWindow(QtGui.QMainWindow):
 		
 		self.splitterWidget.saveTagTable(filename)
 
+	############################# NEW ATTENDANCE SHEET #############################
+	# The new attendance sheet function will clear the current attendance list     #
+	# resulting in a blank new list. If the current list has been modified since   #
+	# it was last saved then a message box will pop up confirming that the user    #
+	# wants to delete the current sheet                                            #
+	################################################################################
 	def newAttendanceSheet(self):
 		if self.sheetModified == True:
 			# Prompt the user if they are sure they would like to delete the current sheet and start another
@@ -199,24 +215,30 @@ class mainWindow(QtGui.QMainWindow):
 			except Queue.Empty:
 				pass
 
-	## this fucntion handles the tags and how to add them to the database it also handles how to add the tag to the lists contained within
+	################################## HANDLE TAG ##################################
+	# This function handles adding the new tag to the tag list. It also changes    #
+	# the current status of the attendance sheet to modified. Lastly it plays a    #
+	# notification noise to indicate the tag has been read                         #
+	################################################################################
 	def handleTag(self,tag):
-		#item = QtGui.QListWidgetItem("Tag %s" % tag[0:-2])
-		#self.splitterWidget.tagListWidget.addItem(item)
-
 		self.splitterWidget.tagList.append(tag)
 		self.splitterWidget.updateTagTable()
 
 		self.sheetModified = True
-
-		#loadNoise()
 		playNoise()
-		#endNoise()
 
 	
 
-
+############################### NEW PERSON WIDGET ##############################
+# This class handles the new person widget, which is a popup windows that      #
+# allows a new person to be added to the database of users.                    #
+################################################################################
 class newPersonWidget(QtGui.QWidget):
+	############################ NEW PERSON WIDGIT INIT ############################
+	# The intilization of the new user widget takes in the parent widget and the   #
+	# optional parameter of a tag. If the tag is given then when the widget        #
+	# apears the RFID tag field will allready be filled in                         #
+	################################################################################
 	def __init__(self,parent,tag=""):
 		super(newPersonWidget, self).__init__()
 
@@ -247,8 +269,10 @@ class newPersonWidget(QtGui.QWidget):
 		mainLayout.addWidget(buttonBox)
 		self.setLayout(mainLayout)
 
-		
-
+	##################################### SAVE #####################################
+	# The save new tag function takes all the data presented in the new user       #
+	# widgit and saves it to the databse.                                          #
+	################################################################################
 	def save(self):
 		# TODO save the new user in the database
 		# print "pretending to save"
@@ -270,19 +294,24 @@ class newPersonWidget(QtGui.QWidget):
 # as just the students selected. Allong with the ability to search those lists #
 ################################################################################
 class mainWidget(QtGui.QWidget):
+	############################### INIT MAIN WIDGET ###############################
+	# The main widget initilization takes in a parent widget or windows. It is in  #
+	# charge of setting up the display functionality                               #
+	################################################################################
 	def __init__(self,parent):
 		super(mainWidget, self).__init__()
 		self.initUI()
 		self.loadDatabase()
 		self.parent = parent
 
-	## this function intilizes the UI for the main widget which currently involves seting up two lists that get written to
+	#################################### INIT UI ###################################
+	# This function initilizes the UI for the main widget, involving the two       #
+	# lists that get displayed to the user and the search bar for users.           #
+	################################################################################
 	def initUI(self):
 		hbox = QtGui.QHBoxLayout(self)
 
 		self.tagListWidget = QtGui.QListWidget()
-
-		
 
 		self.namelistWidget = QtGui.QListWidget()
 		self.namelist = QtGui.QLineEdit("",self)
@@ -304,7 +333,11 @@ class mainWidget(QtGui.QWidget):
 
 		self.tagListWidget.itemDoubleClicked.connect(self.editTag)
 
-
+	################################# LOAD DATABASE ################################
+	# The load databse funciton reads the databse file into memory and puts all    #
+	# the entries into the databse relation table. It is run when the program      #
+	# starts up and does not need to be run by the user.                           #
+	################################################################################
 	IDRelation = {}
 	def loadDatabase(self):
 		self.namelist.textChanged.connect(self.updateNameTable)
@@ -318,6 +351,10 @@ class mainWidget(QtGui.QWidget):
 			self.IDRelation[rfid] = name[:-1]
 		self.updateNameTable("")
 	
+	################################# SAVE DATABASE ################################
+	# The save database function reads the data from the ID relation and converts  #
+	# it back into a CSV file and saves it to the database file                    #
+	################################################################################
 	def saveDatabase(self):
 		savefile = open("Sample_Database",'w')
 		for tag in self.IDRelation:
@@ -347,11 +384,14 @@ class mainWidget(QtGui.QWidget):
 		self.namelistWidget.clear()
 
 		for name in thirdOrder:
-			#item = QtGui.QListWidgetItem("%s\t%s"%(rfid,name))
 			item = QtGui.QListWidgetItem("%s"%(name))
 			self.namelistWidget.addItem(item)
 
-	# The tag list stores the list of tags that have been swiped in durring this session
+	################################ LOAD TAG TABLE ################################
+	# Load tag table is the function that is called when a previous attendance     #
+	# sheet is trying to be accessed. It opens a file and writes the contents to   #
+	# the current tag list                                                         #
+	################################################################################
 	tagList = []
 	def loadTagTable (self, filename):
 		print "Tried to open file", filename
@@ -364,6 +404,10 @@ class mainWidget(QtGui.QWidget):
 		loadFile.close()
 		self.updateTagTable()
 
+	################################ SAVE TAG TABLE ################################
+	# The save tag table converts the current attendance sheet into a CSV file     #
+	# and saves it to a user specified location                                    #
+	################################################################################
 	def saveTagTable (self, filename):
 		print "Tried to save file", filename
 		savefile = open(filename,'w')
@@ -375,9 +419,18 @@ class mainWidget(QtGui.QWidget):
 			savefile.write(csvLine+'\n')
 		savefile.close()
 
+	################################# NEW TAG TABLE ################################
+	# The new tag table clears the current tag list making it blank once more      #
+	################################################################################
 	def newTagTable (self):
 		self.tagList = []
 
+	############################### UPDATE TAG TABLE ###############################
+	# The update tag table function iterates through all of the tags in the tag    #
+	# list if the tag exists in the database then the name associated with the     #
+	# tag is displayued. If there is no name then 'Unknown Tag' is displayed with  #
+	# the tag that was scanned                                                     #
+	################################################################################
 	def updateTagTable(self, QText=None):
 		# QText will be used to sort the tag table, but for now it will not be used
 
@@ -550,9 +603,7 @@ def loadNoise():
 	global stream
 
 	wf = wave.open("ping.wav", 'rb')
-
 	p = pyaudio.PyAudio()
-
 	stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
 				channels=wf.getnchannels(),
 				rate=wf.getframerate(),
@@ -561,9 +612,7 @@ def loadNoise():
 	
 
 def endNoise():
-
 	stream.close()
-
 	p.terminate()
 
 
