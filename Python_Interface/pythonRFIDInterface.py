@@ -89,27 +89,27 @@ class mainWindow(QtGui.QMainWindow):
 	################################################################################
 	def initMenu(self):
 		# Exit the program button
-		exitAction = QtGui.QAction(QtGui.QIcon('window-close.png'), 'Exit', self)
+		exitAction = QtGui.QAction(QtGui.QIcon('icons/window-close.png'), 'Exit', self)
 		exitAction.setShortcut('Ctrl+Q')
 		exitAction.setStatusTip('Exit Application')
 		exitAction.triggered.connect(self.closeApp)
 
-		newContactAction = QtGui.QAction(QtGui.QIcon('contact-new-3.png'), 'New Person', self)
+		newContactAction = QtGui.QAction(QtGui.QIcon('icons/add_user.png'), 'New Person', self)
 		newContactAction.setShortcut('Ctrl+M')
 		newContactAction.setStatusTip('Create a new Person')
 		newContactAction.triggered.connect(self.newPerson)
 
-		openAttendanceAction = QtGui.QAction(QtGui.QIcon('document-open-recent-2.png'),'Open Attendace',self)
+		openAttendanceAction = QtGui.QAction(QtGui.QIcon('icons/folder.png'),'Open Attendace',self)
 		openAttendanceAction.setShortcut('Ctrl+O')
 		openAttendanceAction.setStatusTip('Open a previous attendance document')
 		openAttendanceAction.triggered.connect(self.openAttendanceSheet)
 
-		newAttendanceAction = QtGui.QAction(QtGui.QIcon('new-attendance.png'),'New Attendace',self)
+		newAttendanceAction = QtGui.QAction(QtGui.QIcon('icons/add_page.png'),'New Attendace',self)
 		newAttendanceAction.setShortcut('Ctrl+N')
 		newAttendanceAction.setStatusTip('Creates a new attendance document')
 		newAttendanceAction.triggered.connect(self.newAttendanceSheet)
 
-		saveAttendance = QtGui.QAction(QtGui.QIcon('document-save-2.png'),'Save Attendace',self)
+		saveAttendance = QtGui.QAction(QtGui.QIcon('icons/download_page.png'),'Save Attendace',self)
 		saveAttendance.setShortcut('Ctrl+S')
 		saveAttendance.setStatusTip('Saves the attendance document')
 		saveAttendance.triggered.connect(self.saveAttendanceSheet)
@@ -126,7 +126,7 @@ class mainWindow(QtGui.QMainWindow):
 		fileMenu.addAction(saveAttendance)
 
 		toolbar = self.addToolBar('Commands')
-		toolbar.addAction(exitAction)
+		#toolbar.addAction(exitAction)
 		toolbar.addAction(newContactAction)
 		toolbar.addAction(openAttendanceAction)
 		toolbar.addAction(newAttendanceAction)
