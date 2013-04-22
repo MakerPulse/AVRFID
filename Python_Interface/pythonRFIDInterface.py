@@ -52,6 +52,8 @@ from PyQt4 import QtGui, QtCore
 #serialPort = "/dev/ttyACM0"
 serialBaud = 9600
 
+metadataSlots = ["Metadata","More Metadata"]
+
 ################################ MAIN QT WINDOW ################################
 # This is the main window class it handles setting up the window and menu      #
 # bars and maintaining a connectino with teh worker thread. It also is in      #
@@ -255,8 +257,10 @@ class newPersonWidget(QtGui.QWidget):
 		formLayout.addRow("&Name", self.username)
 		self.rfidTag = QtGui.QLineEdit(tag,self)
 		formLayout.addRow("&RFID:", self.rfidTag)
-		self.metadata = QtGui.QTextEdit("",self)
-		formLayout.addRow("&Metadata", self.metadata)
+		for metadata in metadataSlots:
+			metadataWidget = QtGui.QTextEdit("",self)
+			formLayout.addRow("&"+metadata, metadataWidget)
+		
 		groupBox = QtGui.QGroupBox("Add User");
 		groupBox.setLayout(formLayout);
 
