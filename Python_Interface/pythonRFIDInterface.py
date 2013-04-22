@@ -345,14 +345,17 @@ class mainWidget(QtGui.QWidget):
 	IDRelation = {}
 	def loadDatabase(self):
 		self.namelist.textChanged.connect(self.updateNameTable)
-		f = open("Sample_Database")
-		for line in f:
-			splitline = line.split(',')
-			rfid = splitline[0]
-			name = splitline[1]
-			#item = QtGui.QListWidgetItem("%s\t%s"%(rfid,name))
-			#self.splitterWidget.namelistWidget.addItem(item)
-			self.IDRelation[rfid] = name[:-1]
+		try:
+			f = open("Sample_Database")
+			for line in f:
+				splitline = line.split(',')
+				rfid = splitline[0]
+				name = splitline[1]
+				#item = QtGui.QListWidgetItem("%s\t%s"%(rfid,name))
+				#self.splitterWidget.namelistWidget.addItem(item)
+				self.IDRelation[rfid] = name[:-1]
+		except IOError:
+			pass
 		self.updateNameTable("")
 	
 	################################# SAVE DATABASE ################################
