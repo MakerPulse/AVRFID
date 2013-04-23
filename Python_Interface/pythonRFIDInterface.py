@@ -52,6 +52,8 @@ from PyQt4 import QtGui, QtCore
 #serialPort = "/dev/ttyACM0"
 serialBaud = 9600
 
+metadataSlots = ["Metadata","More Metadata"]
+
 ################################ MAIN QT WINDOW ################################
 # This is the main window class it handles setting up the window and menu      #
 # bars and maintaining a connectino with teh worker thread. It also is in      #
@@ -87,27 +89,27 @@ class mainWindow(QtGui.QMainWindow):
 	################################################################################
 	def initMenu(self):
 		# Exit the program button
-		exitAction = QtGui.QAction(QtGui.QIcon('window-close.png'), 'Exit', self)
+		exitAction = QtGui.QAction(QtGui.QIcon('icons/window-close.png'), 'Exit', self)
 		exitAction.setShortcut('Ctrl+Q')
 		exitAction.setStatusTip('Exit Application')
 		exitAction.triggered.connect(self.closeApp)
 
-		newContactAction = QtGui.QAction(QtGui.QIcon('contact-new-3.png'), 'New Person', self)
+		newContactAction = QtGui.QAction(QtGui.QIcon('icons/add_user.png'), 'New Person', self)
 		newContactAction.setShortcut('Ctrl+M')
 		newContactAction.setStatusTip('Create a new Person')
 		newContactAction.triggered.connect(self.newPerson)
 
-		openAttendanceAction = QtGui.QAction(QtGui.QIcon('document-open-recent-2.png'),'Open Attendace',self)
+		openAttendanceAction = QtGui.QAction(QtGui.QIcon('icons/folder.png'),'Open Attendace',self)
 		openAttendanceAction.setShortcut('Ctrl+O')
 		openAttendanceAction.setStatusTip('Open a previous attendance document')
 		openAttendanceAction.triggered.connect(self.openAttendanceSheet)
 
-		newAttendanceAction = QtGui.QAction(QtGui.QIcon('new-attendance.png'),'New Attendace',self)
+		newAttendanceAction = QtGui.QAction(QtGui.QIcon('icons/add_page.png'),'New Attendace',self)
 		newAttendanceAction.setShortcut('Ctrl+N')
 		newAttendanceAction.setStatusTip('Creates a new attendance document')
 		newAttendanceAction.triggered.connect(self.newAttendanceSheet)
 
-		saveAttendance = QtGui.QAction(QtGui.QIcon('document-save-2.png'),'Save Attendace',self)
+		saveAttendance = QtGui.QAction(QtGui.QIcon('icons/download_page.png'),'Save Attendace',self)
 		saveAttendance.setShortcut('Ctrl+S')
 		saveAttendance.setStatusTip('Saves the attendance document')
 		saveAttendance.triggered.connect(self.saveAttendanceSheet)
@@ -124,7 +126,7 @@ class mainWindow(QtGui.QMainWindow):
 		fileMenu.addAction(saveAttendance)
 
 		toolbar = self.addToolBar('Commands')
-		toolbar.addAction(exitAction)
+		#toolbar.addAction(exitAction)
 		toolbar.addAction(newContactAction)
 		toolbar.addAction(openAttendanceAction)
 		toolbar.addAction(newAttendanceAction)
@@ -255,8 +257,10 @@ class newPersonWidget(QtGui.QWidget):
 		formLayout.addRow("&Name", self.username)
 		self.rfidTag = QtGui.QLineEdit(tag,self)
 		formLayout.addRow("&RFID:", self.rfidTag)
-		self.metadata = QtGui.QTextEdit("",self)
-		formLayout.addRow("&Metadata", self.metadata)
+		for metadata in metadataSlots:
+			metadataWidget = QtGui.QTextEdit("",self)
+			formLayout.addRow("&"+metadata, metadataWidget)
+		
 		groupBox = QtGui.QGroupBox("Add User");
 		groupBox.setLayout(formLayout);
 
@@ -341,14 +345,17 @@ class mainWidget(QtGui.QWidget):
 	IDRelation = {}
 	def loadDatabase(self):
 		self.namelist.textChanged.connect(self.updateNameTable)
-		f = open("Sample_Database")
-		for line in f:
-			splitline = line.split(',')
-			rfid = splitline[0]
-			name = splitline[1]
-			#item = QtGui.QListWidgetItem("%s\t%s"%(rfid,name))
-			#self.splitterWidget.namelistWidget.addItem(item)
-			self.IDRelation[rfid] = name[:-1]
+		try:
+			f = open("Sample_Database")
+			for line in f:
+				splitline = line.split(',')
+				rfid = splitline[0]
+				name = splitline[1]
+				#item = QtGui.QListWidgetItem("%s\t%s"%(rfid,name))
+				#self.splitterWidget.namelistWidget.addItem(item)
+				self.IDRelation[rfid] = name[:-1]
+		except IOError:
+			pass
 		self.updateNameTable("")
 	
 	################################# SAVE DATABASE ################################
