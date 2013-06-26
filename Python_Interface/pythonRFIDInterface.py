@@ -46,13 +46,22 @@
 # POSSIBILITY OF SUCH DAMAGE.                                                  #
 ################################################################################
 
-import sys, serial, threading, random, Queue, time, pyaudio, wave, datetime
+import sys
+import serial
+import threading
+import random
+import Queue
+import time
+import pyaudio
+import wave
+import datetime
 import serial.tools.list_ports
 from PyQt4 import QtGui, QtCore
 #serialPort = "/dev/ttyACM0"
 serialBaud = 9600
 
-metadataSlots = ["Metadata","More Metadata"]
+metadataSlots = ["Metadata", "More Metadata"]
+
 
 ################################ MAIN QT WINDOW ################################
 # This is the main window class it handles setting up the window and menu      #
@@ -70,8 +79,6 @@ class mainWindow(QtGui.QMainWindow):
 
         self.initUI()
 
-        
-
     #################################### INIT UI ###################################
     # A wraper function for init menu that also sets the main widget of the        #
     # QMainWindow and sizes window itself                                          #
@@ -80,7 +87,7 @@ class mainWindow(QtGui.QMainWindow):
         self.initMenu()
         self.splitterWidget = mainWidget(self)
         self.setCentralWidget(self.splitterWidget)
-        self.setGeometry(100,100,800,700)
+        self.setGeometry(100, 100, 800, 700)
         self.setWindowTitle('RPI-RFID Interface')
 
     ################################### INIT MENU ##################################
@@ -99,21 +106,20 @@ class mainWindow(QtGui.QMainWindow):
         newContactAction.setStatusTip('Create a new Person')
         newContactAction.triggered.connect(self.newPerson)
 
-        openAttendanceAction = QtGui.QAction(QtGui.QIcon('icons/folder.png'),'Open Attendace',self)
+        openAttendanceAction = QtGui.QAction(QtGui.QIcon('icons/folder.png'), 'Open Attendace', self)
         openAttendanceAction.setShortcut('Ctrl+O')
         openAttendanceAction.setStatusTip('Open a previous attendance document')
         openAttendanceAction.triggered.connect(self.openAttendanceSheet)
 
-        newAttendanceAction = QtGui.QAction(QtGui.QIcon('icons/add_page.png'),'New Attendace',self)
+        newAttendanceAction = QtGui.QAction(QtGui.QIcon('icons/add_page.png'), 'New Attendace', self)
         newAttendanceAction.setShortcut('Ctrl+N')
         newAttendanceAction.setStatusTip('Creates a new attendance document')
         newAttendanceAction.triggered.connect(self.newAttendanceSheet)
 
-        saveAttendance = QtGui.QAction(QtGui.QIcon('icons/download_page.png'),'Save Attendace',self)
+        saveAttendance = QtGui.QAction(QtGui.QIcon('icons/download_page.png'), 'Save Attendace', self)
         saveAttendance.setShortcut('Ctrl+S')
         saveAttendance.setStatusTip('Saves the attendance document')
         saveAttendance.triggered.connect(self.saveAttendanceSheet)
-
 
         self.statusBar()
 
@@ -138,7 +144,7 @@ class mainWindow(QtGui.QMainWindow):
     # window                                                                       #
     ################################################################################
     def closeApp(self):
-        reallyQuit =  QtGui.QMessageBox.question(self, 'Message', "Are you sure to quit?", QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
+        reallyQuit = QtGui.QMessageBox.question(self, 'Message', "Are you sure to quit?", QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
         if reallyQuit == QtGui.QMessageBox.Yes:
             QtCore.QCoreApplication.instance().quit()
 
@@ -158,18 +164,18 @@ class mainWindow(QtGui.QMainWindow):
     # current unsaved attendance sheet                                             #
     ################################################################################
     def openAttendanceSheet(self):
-        if self.sheetModified == True:
+        if self.sheetModified:
             # Prompt the user if they are sure they would like to delete the current sheet and start another
-            deleteSheetResponce =  QtGui.QMessageBox.question(self, 'Message', "Are you sure to delete the current attendance sheet and start a new one?", QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
+            deleteSheetResponce = QtGui.QMessageBox.question(self, 'Message', "Are you sure to delete the current attendance sheet and start a new one?", QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
             # call the subclass's action to clear the attendance
             if deleteSheetResponce == QtGui.QMessageBox.No:
                 return
-        
+
         filename = QtGui.QFileDialog.getOpenFileName(self, "Open File", "", "")
         if filename == "":
             return
         self.splitterWidget.loadTagTable(filename)
-    
+
     ############################# SAVE ATTENDANCE SHEET ############################
     # This function will save the current attendance sheet. The default name for   #
     # the saved file is set to todays date. If the file is saved then the global   #
@@ -177,14 +183,14 @@ class mainWindow(QtGui.QMainWindow):
     ################################################################################
     def saveAttendanceSheet(self):
         now = datetime.datetime.now()
-        months = ["January","Febuary","March","April", "May", "June", "July", "Augest", "September", "October", "November", "December"]
+        months = ["January", "Febuary", "March", "April", "May", "June", "July", "Augest", "September", "October", "November", "December"]
         todaysDate = months[now.month-1]+"-"+str(now.day)+"-"+str(now.year)
         filename = QtGui.QFileDialog.getSaveFileName(self, "Save File", "Attendance-"+todaysDate+".rfid", ".rfid")
         # check to see if the user did not specify a file to save
         if filename == "":
             return
         self.modified = False
-        
+
         self.splitterWidget.saveTagTable(filename)
 
     ############################# NEW ATTENDANCE SHEET #############################
@@ -194,9 +200,9 @@ class mainWindow(QtGui.QMainWindow):
     # wants to delete the current sheet                                            #
     ################################################################################
     def newAttendanceSheet(self):
-        if self.sheetModified == True:
+        if self.sheetModified:
             # Prompt the user if they are sure they would like to delete the current sheet and start another
-            deleteSheetResponce =  QtGui.QMessageBox.question(self, 'Message', "Are you sure to delete the current attendance sheet and start a new one?", QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
+            deleteSheetResponce = QtGui.QMessageBox.question(self, 'Message', "Are you sure to delete the current attendance sheet and start a new one?", QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
             # call the subclass's action to clear the attendance
             if deleteSheetResponce == QtGui.QMessageBox.No:
                 return
@@ -222,14 +228,13 @@ class mainWindow(QtGui.QMainWindow):
     # the current status of the attendance sheet to modified. Lastly it plays a    #
     # notification noise to indicate the tag has been read                         #
     ################################################################################
-    def handleTag(self,tag):
+    def handleTag(self, tag):
         self.splitterWidget.tagList.append(tag)
         self.splitterWidget.updateTagTable()
 
         self.sheetModified = True
         playNoise()
 
-    
 
 ############################### NEW PERSON WIDGET ##############################
 # This class handles the new person widget, which is a popup windows that      #
@@ -241,7 +246,7 @@ class newPersonWidget(QtGui.QWidget):
     # optional parameter of a tag. If the tag is given then when the widget        #
     # apears the RFID tag field will allready be filled in                         #
     ################################################################################
-    def __init__(self,parent,tag=""):
+    def __init__(self, parent, tag=""):
         super(newPersonWidget, self).__init__()
 
         self.parentWindow = parent
@@ -251,23 +256,22 @@ class newPersonWidget(QtGui.QWidget):
         x = (parent.geometry().width()-400)/2+parent.geometry().x()
         self.setGeometry(x, y, 400, 250)
 
-        
         formLayout = QtGui.QFormLayout()
-        self.username = QtGui.QLineEdit("",self)
+        self.username = QtGui.QLineEdit("", self)
         formLayout.addRow("&Name", self.username)
-        self.rfidTag = QtGui.QLineEdit(tag,self)
+        self.rfidTag = QtGui.QLineEdit(tag, self)
         formLayout.addRow("&RFID:", self.rfidTag)
         for metadata in metadataSlots:
-            metadataWidget = QtGui.QTextEdit("",self)
+            metadataWidget = QtGui.QTextEdit("", self)
             formLayout.addRow("&"+metadata, metadataWidget)
-        
-        groupBox = QtGui.QGroupBox("Add User");
-        groupBox.setLayout(formLayout);
+
+        groupBox = QtGui.QGroupBox("Add User")
+        groupBox.setLayout(formLayout)
 
         buttonBox = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Ok | QtGui.QDialogButtonBox.Cancel)
         buttonBox.accepted.connect(self.save)
         buttonBox.rejected.connect(self.close)
-        
+
         mainLayout = QtGui.QVBoxLayout()
         mainLayout.addWidget(groupBox)
         mainLayout.addWidget(buttonBox)
@@ -291,7 +295,8 @@ class newPersonWidget(QtGui.QWidget):
         self.parentWindow.splitterWidget.saveDatabase()
         # then close
         self.close()
-        
+
+
 ################################ MAIN QT WIDGET ################################
 # The main qt widget handles all of the ui inside of the main window. This     #
 # mainly includes the two list views displaying all of the students as well    #
@@ -302,11 +307,13 @@ class mainWidget(QtGui.QWidget):
     # The main widget initilization takes in a parent widget or windows. It is in  #
     # charge of setting up the display functionality                               #
     ################################################################################
-    def __init__(self,parent):
+    def __init__(self, parent):
         super(mainWidget, self).__init__()
         self.initUI()
         self.loadDatabase()
         self.parent = parent
+        self.IDRelation = {}
+        self.tagList = []
 
     #################################### INIT UI ###################################
     # This function initilizes the UI for the main widget, involving the two       #
@@ -318,7 +325,7 @@ class mainWidget(QtGui.QWidget):
         self.tagListWidget = QtGui.QListWidget()
 
         self.namelistWidget = QtGui.QListWidget()
-        self.namelist = QtGui.QLineEdit("",self)
+        self.namelist = QtGui.QLineEdit("", self)
         self.namelist.setPlaceholderText("Search Names ...")
         groupBox = QtGui.QVBoxLayout(self)
         groupBox.addWidget(self.namelist)
@@ -342,7 +349,6 @@ class mainWidget(QtGui.QWidget):
     # the entries into the databse relation table. It is run when the program      #
     # starts up and does not need to be run by the user.                           #
     ################################################################################
-    IDRelation = {}
     def loadDatabase(self):
         self.namelist.textChanged.connect(self.updateNameTable)
         try:
@@ -357,15 +363,15 @@ class mainWidget(QtGui.QWidget):
         except IOError:
             pass
         self.updateNameTable("")
-    
+
     ################################# SAVE DATABASE ################################
     # The save database function reads the data from the ID relation and converts  #
     # it back into a CSV file and saves it to the database file                    #
     ################################################################################
     def saveDatabase(self):
-        savefile = open("Sample_Database",'w')
+        savefile = open("Sample_Database", 'w')
         for tag in self.IDRelation:
-            csvLine = tag + "," + self.IDRelation[tag] 
+            csvLine = tag + "," + self.IDRelation[tag]
             savefile.write(csvLine+'\n')
         savefile.close()
 
@@ -376,8 +382,8 @@ class mainWidget(QtGui.QWidget):
     # list. If the variable is not set then it will be set equal to the contents   #
     # of the text box above the list                                               #
     ################################################################################
-    def updateNameTable(self,QText=None):
-        if QText == None:
+    def updateNameTable(self, QText=None):
+        if QText is None:
             QText = str(self.namelist.text())
         text = str(QText)
         firstOrder = []
@@ -391,7 +397,7 @@ class mainWidget(QtGui.QWidget):
         self.namelistWidget.clear()
 
         for name in thirdOrder:
-            item = QtGui.QListWidgetItem("%s"%(name))
+            item = QtGui.QListWidgetItem("%s" % (name))
             self.namelistWidget.addItem(item)
 
     ################################ LOAD TAG TABLE ################################
@@ -399,15 +405,14 @@ class mainWidget(QtGui.QWidget):
     # sheet is trying to be accessed. It opens a file and writes the contents to   #
     # the current tag list                                                         #
     ################################################################################
-    tagList = []
-    def loadTagTable (self, filename):
+    def loadTagTable(self, filename):
         print "Tried to open file", filename
         self.newTagTable()
         loadFile = open(filename)
         for line in loadFile:
             line = line.rstrip().lstrip()
             splitline = line.split(',')
-            self.tagList.append(splitline[0]) #add only the rfid tag to the tag list, all the other data will be collected from the database
+            self.tagList.append(splitline[0])  # add only the rfid tag to the tag list, all the other data will be collected from the database
         loadFile.close()
         self.updateTagTable()
 
@@ -415,9 +420,9 @@ class mainWidget(QtGui.QWidget):
     # The save tag table converts the current attendance sheet into a CSV file     #
     # and saves it to a user specified location                                    #
     ################################################################################
-    def saveTagTable (self, filename):
+    def saveTagTable(self, filename):
         print "Tried to save file", filename
-        savefile = open(filename,'w')
+        savefile = open(filename, 'w')
         for tag in self.tagList:
             csvLine = tag
             if tag in self.IDRelation:
@@ -429,7 +434,7 @@ class mainWidget(QtGui.QWidget):
     ################################# NEW TAG TABLE ################################
     # The new tag table clears the current tag list making it blank once more      #
     ################################################################################
-    def newTagTable (self):
+    def newTagTable(self):
         self.tagList = []
 
     ############################### UPDATE TAG TABLE ###############################
@@ -447,14 +452,14 @@ class mainWidget(QtGui.QWidget):
                 i = self.IDRelation[i]
             else:
                 i = "Unknown Tag "+i
-            item = QtGui.QListWidgetItem("%s"%(i))
+            item = QtGui.QListWidgetItem("%s" % (i))
             self.tagListWidget.addItem(item)
 
     def editTag(self, listItem):
         tagToModify = str(listItem.text())
         if tagToModify[0:12] == "Unknown Tag ":
             print "UNKNOWN TAG"
-            tag = tagToModify[12:] 
+            tag = tagToModify[12:]
             # Call edit function with just the RFID Tag
             self.nperson = newPersonWidget(self.parent, tag=tag)
             self.nperson.show()
@@ -466,7 +471,6 @@ class mainWidget(QtGui.QWidget):
 # thread                                                                       #
 ################################################################################
 class ThreaderParent:
-    
     ############################# INIT THREADER PARENT #############################
     # THe initilization function creates the queue, calls the QT main window       #
     # generation class to generate the QT window, and then creates the thread for  #
@@ -490,7 +494,7 @@ class ThreaderParent:
         self.running = 1
         self.openPorts = serial.tools.list_ports.comports()
         self.thread = []
-        
+
     ################################# PERIODIC CALL ################################
     # THis function is called periodoicly by the QT timer to tell the Main QT      #
     # Window to read data from the queue and update the display accordingly        #
@@ -515,9 +519,9 @@ class ThreaderParent:
                 if port not in self.openPorts:
                     newPorts.append(port)
                     print "NEW PORT:", port
-                    self.thread.append(threading.Thread(target=self.workerThread,args=(port)))
+                    self.thread.append(threading.Thread(target=self.workerThread, args=(port)))
                     self.thread[-1].start()
-            
+
             # find all removed ports
             ###print "LOOKING FOR CLOSED PORTS"
             closedPorts = []
@@ -551,13 +555,12 @@ class ThreaderParent:
     # a valid tag then it puts it into a queue from wich the main thread can       #
     # handle it                                                                    #
     ################################################################################
-    def workerThread(self,serialPort,serialName, serialVIN):
+    def workerThread(self, serialPort, serialName, serialVIN):
         try:
             serialConnection = serial.Serial(port=serialPort, baudrate=serialBaud, timeout=0)
         except:
             print "ERROR INITILIZING THE CONNECTION TO", serialPort, "CLOSING THREAD"
             return
-
 
         print "STARTING WORKER THREAD:"
         print " WORKER PORT:", serialPort
@@ -586,13 +589,14 @@ p = None
 stream = None
 data = None
 
+
 def playNoise():
 
     thread = threading.Thread(target=playNoise_Thread)
     thread.start()
 
+
 def playNoise_Thread():
-    
     stream.start_stream()
 
     wf = wave.open("ping.wav", 'rb')
@@ -612,11 +616,11 @@ def loadNoise():
     wf = wave.open("ping.wav", 'rb')
     p = pyaudio.PyAudio()
     stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
-                channels=wf.getnchannels(),
-                rate=wf.getframerate(),
-                output=True)
+                    channels=wf.getnchannels(),
+                    rate=wf.getframerate(),
+                    output=True)
     wf.close()
-    
+
 
 def endNoise():
     stream.close()
@@ -624,7 +628,7 @@ def endNoise():
 
 
 def main():
-    loadNoise();
+    loadNoise()
     app = QtGui.QApplication(sys.argv)
     display = ThreaderParent()
     app.exec_()
