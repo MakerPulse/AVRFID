@@ -279,7 +279,10 @@ class newPersonWidget(QtGui.QWidget):
         formLayout.addRow("&Name", self.username)
         self.rfidTag = QtGui.QLineEdit(tag, self)
         formLayout.addRow("&RFID:", self.rfidTag)
-        self.rfidTag.setEnabled(False)
+
+        if tag != "":
+            self.rfidTag.setEnabled(False)
+
         for metadata in metadataSlots:
             metadataWidget = QtGui.QTextEdit("", self)
             formLayout.addRow("&"+metadata, metadataWidget)
