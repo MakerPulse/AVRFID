@@ -96,6 +96,8 @@ class mainWindow(QtGui.QMainWindow):
     # adding them to the menu bar and the toolbar                                  #
     ################################################################################
     def initMenu(self):
+
+        # FILE MENU OPTIONS
         # Exit the program button
         exitAction = QtGui.QAction(QtGui.QIcon('icons/window-close.png'), 'Exit', self)
         exitAction.setShortcut('Ctrl+Q')
@@ -122,6 +124,11 @@ class mainWindow(QtGui.QMainWindow):
         saveAttendance.setStatusTip('Saves the attendance document')
         saveAttendance.triggered.connect(self.saveAttendanceSheet)
 
+        # DATABASE READER OPTIONS
+        changeDatabase = QtGui.QAction(QtGui.QIcon(""), 'Open New Database', self)
+        #changeDatabase.setShortcut("")
+        changeDatabase.setStatusTip('Open a different default databse file')
+
         self.statusBar()
 
         menubar = self.menuBar()
@@ -131,6 +138,14 @@ class mainWindow(QtGui.QMainWindow):
         fileMenu.addAction(openAttendanceAction)
         fileMenu.addAction(newAttendanceAction)
         fileMenu.addAction(saveAttendance)
+
+        databaseMenu = menubar.addMenu('&Database')
+        databaseMenu.addAction(changeDatabase)
+
+        self.rfidReaderMenu = menubar.addMenu("&Reader")
+        self.rfidReaderList = self.rfidReaderMenu.addMenu("&Manual Connect")
+
+        helpMenu = menubar.addMenu("&Help")
 
         toolbar = self.addToolBar('Commands')
         #toolbar.addAction(exitAction)
@@ -494,6 +509,11 @@ class ThreaderParent:
         # Create a thread to read the serial port
         self.running = 1
         self.openPorts = scanPorts()
+        for (index,port) in enumerate(self.openPorts):
+            serialPort = QtGui.QAction(QtGui.QIcon(""),"Connect To "+port,self.gui)
+            if index < 10:
+                serialPort.setShortcut("Ctrl+"+str(index))
+            self.gui.rfidReaderMenu.addAction(serialPort)
         self.thread = []
 
     ################################# PERIODIC CALL ################################
