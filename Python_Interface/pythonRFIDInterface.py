@@ -55,7 +55,8 @@ import time
 import pyaudio
 import wave
 import datetime
-import serial.tools.list_ports
+#import serial.tools.list_ports
+import glob
 from PyQt4 import QtGui, QtCore
 #serialPort = "/dev/ttyACM0"
 serialBaud = 9600
@@ -309,11 +310,11 @@ class mainWidget(QtGui.QWidget):
     ################################################################################
     def __init__(self, parent):
         super(mainWidget, self).__init__()
-        self.initUI()
-        self.loadDatabase()
         self.parent = parent
         self.IDRelation = {}
         self.tagList = []
+        self.initUI()
+        self.loadDatabase()
 
     #################################### INIT UI ###################################
     # This function initilizes the UI for the main widget, involving the two       #
@@ -492,7 +493,7 @@ class ThreaderParent:
         print "CRATED TIMER"
         # Create a thread to read the serial port
         self.running = 1
-        self.openPorts = serial.tools.list_ports.comports()
+        self.openPorts = scanPorts()
         self.thread = []
 
     ################################# PERIODIC CALL ################################
@@ -505,7 +506,7 @@ class ThreaderParent:
             root.quit()
         else:
             # get the current list of serial divices
-            currentPorts = list(serial.tools.list_ports.comports())
+            currentPorts = scanPorts()
             ###print "STARTING PERIODIC CALL"
 
             ###print "LENGTH OF CURRENT PORTS", len(currentPorts)
@@ -589,6 +590,8 @@ p = None
 stream = None
 data = None
 
+def scanPorts():
+    return list(glob.glob('/dev/ttyS*') + glob.glob('/dev/ttyUSB*'))
 
 def playNoise():
 
