@@ -471,12 +471,14 @@ class mainWidget(QtGui.QWidget):
         # QText will be used to sort the tag table, but for now it will not be used
 
         self.tagListWidget.clear()
-        for i in reversed(self.tagList):
-            if (i in self.IDRelation):
-                i = self.IDRelation[i]
+        for tag in reversed(self.tagList):
+            name = ""
+            if (tag in self.IDRelation):
+                name = self.IDRelation[tag]
             else:
-                i = "Unknown Tag "+i
-            item = QtGui.QListWidgetItem("%s" % (i))
+                name = "Unknown Tag "+i
+            item = QtGui.QListWidgetItem("%s" % (name))
+            item.rfidTag = tag
             self.tagListWidget.addItem(item)
 
     def editTag(self, listItem):
