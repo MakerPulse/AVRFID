@@ -129,6 +129,8 @@ class mainWindow(QtGui.QMainWindow):
         #changeDatabase.setShortcut("")
         changeDatabase.setStatusTip('Open a different default databse file')
 
+
+
         self.statusBar()
 
         menubar = self.menuBar()
@@ -262,7 +264,7 @@ class newPersonWidget(QtGui.QWidget):
     # optional parameter of a tag. If the tag is given then when the widget        #
     # apears the RFID tag field will allready be filled in                         #
     ################################################################################
-    def __init__(self, parent, tag=""):
+    def __init__(self, parent, tag="", name="", metadata=[]):
         super(newPersonWidget, self).__init__()
 
         self.parentWindow = parent
@@ -273,10 +275,11 @@ class newPersonWidget(QtGui.QWidget):
         self.setGeometry(x, y, 400, 250)
 
         formLayout = QtGui.QFormLayout()
-        self.username = QtGui.QLineEdit("", self)
+        self.username = QtGui.QLineEdit(name, self)
         formLayout.addRow("&Name", self.username)
         self.rfidTag = QtGui.QLineEdit(tag, self)
         formLayout.addRow("&RFID:", self.rfidTag)
+        self.rfidTag.setEnabled(False)
         for metadata in metadataSlots:
             metadataWidget = QtGui.QTextEdit("", self)
             formLayout.addRow("&"+metadata, metadataWidget)
@@ -359,6 +362,7 @@ class mainWidget(QtGui.QWidget):
         QtGui.QApplication.setStyle(QtGui.QStyleFactory.create('Cleanlooks'))
 
         self.tagListWidget.itemDoubleClicked.connect(self.editTag)
+        self.namelistWidget.itemDoubleClicked.connect(self.editTag)
 
     ################################# LOAD DATABASE ################################
     # The load databse funciton reads the databse file into memory and puts all    #
@@ -408,12 +412,13 @@ class mainWidget(QtGui.QWidget):
         for rfid in self.IDRelation:
             name = self.IDRelation[rfid]
             if text.lower() in name.lower():
-                thirdOrder.append(name)
+                thirdOrder.append((name, rfid))
 
         self.namelistWidget.clear()
 
-        for name in thirdOrder:
+        for (name, rfid) in thirdOrder:
             item = QtGui.QListWidgetItem("%s" % (name))
+            item.rfidTag = rfid
             self.namelistWidget.addItem(item)
 
     ################################ LOAD TAG TABLE ################################
@@ -479,6 +484,11 @@ class mainWidget(QtGui.QWidget):
             # Call edit function with just the RFID Tag
             self.nperson = newPersonWidget(self.parent, tag=tag)
             self.nperson.show()
+        else:
+            tag = listItem.rfidTag
+            print tag + "!!!"
+            self.nperson = newPersonWidget(self.parent, tag=tag, name=str(listItem.text()), metadata=[])
+            self.nperson.show()
 
 
 ############################# THREADER PARENT CLASS ############################
@@ -509,12 +519,22 @@ class ThreaderParent:
         # Create a thread to read the serial port
         self.running = 1
         self.openPorts = scanPorts()
-        for (index,port) in enumerate(self.openPorts):
-            serialPort = QtGui.QAction(QtGui.QIcon(""),"Connect To "+port,self.gui)
-            if index < 10:
-                serialPort.setShortcut("Ctrl+"+str(index))
-            self.gui.rfidReaderMenu.addAction(serialPort)
+        self.refreshSerialList(self.openPorts, ["/dev/ttyS4"])
         self.thread = []
+
+    def refreshSerialList(self, portList, connectedList):
+        self.gui.rfidReaderList.clear()
+        for (index, port) in enumerate(self.openPorts):
+            menuItemName = "Connect To " + port
+            menuItemIcon = "icons/unchecked.png"
+            if port in connectedList:
+                menuItemName = "Disconnect From " + port
+                menuItemIcon = "icons/checked.png"
+
+            serialPort = QtGui.QAction(QtGui.QIcon(menuItemIcon), menuItemName, self.gui)
+            #if index < 10:
+            #    serialPort.setShortcut("Ctrl+"+str(index))
+            self.gui.rfidReaderList.addAction(serialPort)
 
     ################################# PERIODIC CALL ################################
     # THis function is called periodoicly by the QT timer to tell the Main QT      #
@@ -553,7 +573,9 @@ class ThreaderParent:
 
             # set the current ports to the open ports
             ###print "RESETTING PORTS"
-            self.openPorts = currentPorts
+            if self.openPorts != currentPorts:
+                self.openPorts = currentPorts
+                self.refreshSerialList(currentPorts, ["/dev/ttyS4"])
             ###print "RESET PORTS"
             ###print "LENGTH OF CURRENT PORTS", len(currentPorts)
             ###for port in currentPorts:
