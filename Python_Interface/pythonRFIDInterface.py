@@ -666,7 +666,7 @@ def scanPorts():
         return glob.glob('/dev/tty*') + glob.glob('/dev/cu*')
     else:
         # assume *nix
-        return list(glob.glob('/dev/ttyS*') + glob.glob('/dev/ttyUSB*'))
+        return list(glob.glob('/dev/ttyS*') + glob.glob('/dev/ttyUSB*') + glob.glob('/dev/ttyACM*'))
 
 def playNoise():
 
