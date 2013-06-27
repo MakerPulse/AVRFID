@@ -68,6 +68,15 @@ serialBaud = 9600
 metadataSlots = ["Metadata", "More Metadata"]
 
 
+class aboutWidget(QtGui.QWidget):
+    def __init__(self, parent):
+        super(aboutWidget, self).__init__()
+        self.setWindowTitle('About AVRFID')
+        y = (parent.geometry().height()-250)/2+parent.geometry().y()
+        x = (parent.geometry().width()-400)/2+parent.geometry().x()
+        self.setGeometry(x, y, 400, 250)
+
+
 ################################ MAIN QT WINDOW ################################
 # This is the main window class it handles setting up the window and menu      #
 # bars and maintaining a connectino with teh worker thread. It also is in      #
@@ -133,7 +142,10 @@ class mainWindow(QtGui.QMainWindow):
         #changeDatabase.setShortcut("")
         changeDatabase.setStatusTip('Open a different default databse file')
 
-
+        # HELP MENU OPTIONS
+        viewOnlineHelp = QtGui.QAction(QtGui.QIcon(""),'View Online Help', self)
+        aboutAvrfid = QtGui.QAction(QtGui.QIcon(""), 'About...', self)
+        aboutAvrfid.triggered.connect(self.openHelp)
 
         self.statusBar()
 
@@ -152,6 +164,8 @@ class mainWindow(QtGui.QMainWindow):
         self.rfidReaderList = self.rfidReaderMenu.addMenu("&Manual Connect")
 
         helpMenu = menubar.addMenu("&Help")
+        helpMenu.addAction(viewOnlineHelp)
+        helpMenu.addAction(aboutAvrfid)
 
         toolbar = self.addToolBar('Commands')
         #toolbar.addAction(exitAction)
@@ -160,6 +174,9 @@ class mainWindow(QtGui.QMainWindow):
         toolbar.addAction(newAttendanceAction)
         toolbar.addAction(saveAttendance)
 
+    def openHelp(self):
+        self.aboutWindow = aboutWidget(self)
+        self.aboutWindow.show()
     ############################### CLOSE APPLICATION ##############################
     # This function prompts the user if they would like to exit the program and    #
     # if they click yes then the entire program exits, not just the selected       #
