@@ -55,6 +55,8 @@ import time
 import pyaudio
 import wave
 import datetime
+import platform
+import itertools
 #import serial.tools.list_ports
 import glob
 from PyQt4 import QtGui, QtCore
@@ -643,7 +645,27 @@ stream = None
 data = None
 
 def scanPorts():
-    return list(glob.glob('/dev/ttyS*') + glob.glob('/dev/ttyUSB*'))
+    systemName = platform.system()
+    if systemName == "Windows":
+        ### UNTESTED WINDOWS CODE ###
+        ### NEEDS TESTING!!!!!!!! ###
+        import _winreg as winreg
+        path = 'HARDWARE\\DEVICEMAP\\SERIALCOMM'
+        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, path)
+        ports = []
+        for i in itertools.count():
+            try:
+                val = winreg.EnumValue(key, i)
+                ports.append(str(val[1]))
+            except EnvironmentError:
+                break
+        return sorted(ports)
+    elif systemName == "Darwin":
+        # mac system, not tested but not much different from *nix solution
+        return glob.glob('/dev/tty*') + glob.glob('/dev/cu*')
+    else:
+        # assume *nix
+        return list(glob.glob('/dev/ttyS*') + glob.glob('/dev/ttyUSB*'))
 
 def playNoise():
 
