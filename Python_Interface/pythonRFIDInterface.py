@@ -518,10 +518,10 @@ class ThreaderParent:
     def __init__(self):
         print "WTHAT HE HELL"
         # create a queue for message passing
-        self.queue = Queue.Queue()
+        self.tagqueue = Queue.Queue()
         print "CREATED QUEUE"
         #instanciate the gui
-        self.gui = mainWindow(self.queue, self.endApplication)
+        self.gui = mainWindow(self.tagqueue, self.endApplication)
         self.gui.show()
         print "CRATED GUI"
         # create a timer to periodicly check the queue to see if it has tags
@@ -534,6 +534,8 @@ class ThreaderParent:
         self.openPorts = scanPorts()
         self.refreshSerialList(self.openPorts, ["/dev/ttyS4"])
         self.thread = []
+
+        self.workerqueue = Queue.Queue()
 
     def refreshSerialList(self, portList, connectedList):
         self.gui.rfidReaderList.clear()
@@ -560,24 +562,17 @@ class ThreaderParent:
         else:
             # get the current list of serial divices
             currentPorts = scanPorts()
-            ###print "STARTING PERIODIC CALL"
-
-            ###print "LENGTH OF CURRENT PORTS", len(currentPorts)
-            #for port in currentPorts:
-            #   print port
 
             # find all new ports
-            ###print "LOOKING FOR NEW PORTS"
             newPorts = []
             for port in currentPorts:
                 if port not in self.openPorts:
                     newPorts.append(port)
                     print "NEW PORT:", port
-                    self.thread.append(threading.Thread(target=self.workerThread, args=(port)))
+                    self.thread.append(threading.Thread(target=self.workerThread, args=(port,)))
                     self.thread[-1].start()
 
             # find all removed ports
-            ###print "LOOKING FOR CLOSED PORTS"
             closedPorts = []
             for port in self.openPorts:
                 if port not in currentPorts:
@@ -585,16 +580,13 @@ class ThreaderParent:
                     print "CLOSED PORT:", port
 
             # set the current ports to the open ports
-            ###print "RESETTING PORTS"
             if self.openPorts != currentPorts:
                 self.openPorts = currentPorts
                 self.refreshSerialList(currentPorts, ["/dev/ttyS4"])
-            ###print "RESET PORTS"
-            ###print "LENGTH OF CURRENT PORTS", len(currentPorts)
-            ###for port in currentPorts:
-            ### print port
 
-            ###print "FUNCTION DONE"
+            # Cycle through the queue
+            while not self.workerqueue.empty():
+                print self.workerqueue.get()
 
     ################################ END APPLICATION ###############################
     # This function should be called by the QT main window class when the QT       #
@@ -611,12 +603,15 @@ class ThreaderParent:
     # a valid tag then it puts it into a queue from wich the main thread can       #
     # handle it                                                                    #
     ################################################################################
-    def workerThread(self, serialPort, serialName, serialVIN):
+    def workerThread(self, serialPort, serialName="", serialVIN=""):
         try:
             serialConnection = serial.Serial(port=serialPort, baudrate=serialBaud, timeout=0)
-        except:
+        except Exception:
+            print Exception
             print "ERROR INITILIZING THE CONNECTION TO", serialPort, "CLOSING THREAD"
             return
+
+        self.workerqueue.put("Starting Worker For:"+serialPort)
 
         print "STARTING WORKER THREAD:"
         print " WORKER PORT:", serialPort
@@ -628,15 +623,17 @@ class ThreaderParent:
                 tag = serialConnection.read()
             except:
                 print "ERROR READING FROM ", serialPort, "CLOSING THREAD"
-                return
+                break
             if (tag == '\n'):
-                self.queue.put(fulltag)
+                self.tagqueue.put(fulltag)
                 fulltag = ""
                 #print 'read tag'
                 continue
             if (tag == '\r'):
                 continue
             fulltag += tag
+
+        self.workerqueue.put("Ending Worker For:"+serialPort)
 
 ## the main function ##
 
