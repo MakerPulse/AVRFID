@@ -58,6 +58,10 @@ import datetime
 #import serial.tools.list_ports
 import glob
 from PyQt4 import QtGui, QtCore
+
+from newPersonWidget import newPersonWidget
+
+
 #serialPort = "/dev/ttyACM0"
 serialBaud = 9600
 
@@ -172,7 +176,7 @@ class mainWindow(QtGui.QMainWindow):
     ################################################################################
     def newPerson(self):
         #self.move(self.x(), self.y())
-        self.nperson = newPersonWidget(self)
+        self.nperson = newPersonWidget(self,metadataSlots=metadataSlots)
         self.nperson.show()
 
     ############################# OPEN ATTENDANCE SHEET ############################
@@ -252,71 +256,6 @@ class mainWindow(QtGui.QMainWindow):
 
         self.sheetModified = True
         playNoise()
-
-
-############################### NEW PERSON WIDGET ##############################
-# This class handles the new person widget, which is a popup windows that      #
-# allows a new person to be added to the database of users.                    #
-################################################################################
-class newPersonWidget(QtGui.QWidget):
-    ############################ NEW PERSON WIDGIT INIT ############################
-    # The intilization of the new user widget takes in the parent widget and the   #
-    # optional parameter of a tag. If the tag is given then when the widget        #
-    # apears the RFID tag field will allready be filled in                         #
-    ################################################################################
-    def __init__(self, parent, tag="", name="", metadata=[]):
-        super(newPersonWidget, self).__init__()
-
-        self.parentWindow = parent
-
-        self.setWindowTitle('Add User')
-        y = (parent.geometry().height()-250)/2+parent.geometry().y()
-        x = (parent.geometry().width()-400)/2+parent.geometry().x()
-        self.setGeometry(x, y, 400, 250)
-
-        formLayout = QtGui.QFormLayout()
-        self.username = QtGui.QLineEdit(name, self)
-        formLayout.addRow("&Name", self.username)
-        self.rfidTag = QtGui.QLineEdit(tag, self)
-        formLayout.addRow("&RFID:", self.rfidTag)
-
-        if tag != "":
-            self.rfidTag.setEnabled(False)
-
-        for metadata in metadataSlots:
-            metadataWidget = QtGui.QTextEdit("", self)
-            formLayout.addRow("&"+metadata, metadataWidget)
-
-        groupBox = QtGui.QGroupBox("Add User")
-        groupBox.setLayout(formLayout)
-
-        buttonBox = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Ok | QtGui.QDialogButtonBox.Cancel)
-        buttonBox.accepted.connect(self.save)
-        buttonBox.rejected.connect(self.close)
-
-        mainLayout = QtGui.QVBoxLayout()
-        mainLayout.addWidget(groupBox)
-        mainLayout.addWidget(buttonBox)
-        self.setLayout(mainLayout)
-
-    ##################################### SAVE #####################################
-    # The save new tag function takes all the data presented in the new user       #
-    # widgit and saves it to the databse.                                          #
-    ################################################################################
-    def save(self):
-        # TODO save the new user in the database
-        # print "pretending to save"
-        rfid = str(self.rfidTag.text())
-        name = str(self.username.text())
-
-        print rfid, name
-
-        self.parentWindow.splitterWidget.IDRelation[rfid] = name
-        self.parentWindow.splitterWidget.updateNameTable()
-        self.parentWindow.splitterWidget.updateTagTable()
-        self.parentWindow.splitterWidget.saveDatabase()
-        # then close
-        self.close()
 
 
 ################################ MAIN QT WIDGET ################################
@@ -487,12 +426,12 @@ class mainWidget(QtGui.QWidget):
             print "UNKNOWN TAG"
             tag = tagToModify[12:]
             # Call edit function with just the RFID Tag
-            self.nperson = newPersonWidget(self.parent, tag=tag)
+            self.nperson = newPersonWidget(self.parent, tag=tag, metadataSlots=metadataSlots)
             self.nperson.show()
         else:
             tag = listItem.rfidTag
             print tag + "!!!"
-            self.nperson = newPersonWidget(self.parent, tag=tag, name=str(listItem.text()), metadata=[])
+            self.nperson = newPersonWidget(self.parent, tag=tag, name=str(listItem.text()), metadata=[], metadataSlots=metadataSlots)
             self.nperson.show()
 
 
