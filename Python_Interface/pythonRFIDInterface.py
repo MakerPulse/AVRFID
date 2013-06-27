@@ -76,6 +76,30 @@ class aboutWidget(QtGui.QWidget):
         x = (parent.geometry().width()-400)/2+parent.geometry().x()
         self.setGeometry(x, y, 400, 250)
 
+        # create centered text
+        self.inputhlayout = QtGui.QHBoxLayout()
+        self.inputhlayout.addStretch(1)
+        self.inputvlayout = QtGui.QVBoxLayout()
+        self.inputvlayout.addStretch(1)
+
+        # Create the domain text box
+        lbl1 = QtGui.QLabel('<qt><b style="font-size:40px">AVRFID Client</b><br><i>Copyright \xa9 2012-2013 MakerPulse</i><br></qt>', self)
+        lbl1.setAlignment(QtCore.Qt.AlignCenter)
+        self.inputvlayout.addWidget(lbl1)
+
+        # Create the password text box
+        lbl2 = QtGui.QLabel('<qt>Written by Asher Glick (aglick@aglick.com)<br/>The AVRFID client is a computer client<br>used to assist with the use of the<br>MakerPulse AVRFID RFID unit<br><a href="http://www.makerpulse.com/avrfid">Website</a></qt>', self)
+        lbl2.setAlignment(QtCore.Qt.AlignCenter)
+        lbl2.setOpenExternalLinks(True)
+        self.inputvlayout.addWidget(lbl2)
+
+        # Finish configuring the layput
+        self.inputvlayout.addStretch(1)
+        self.inputhlayout.addLayout(self.inputvlayout)
+        self.inputhlayout.addStretch(1)
+        # Set the layout to the hlayout
+        self.setLayout(self.inputhlayout)
+
 
 ################################ MAIN QT WINDOW ################################
 # This is the main window class it handles setting up the window and menu      #
