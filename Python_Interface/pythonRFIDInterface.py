@@ -54,6 +54,7 @@ import Queue
 import time
 import pyaudio
 import wave
+import signal
 import datetime
 import platform
 import itertools
@@ -703,9 +704,19 @@ def endNoise():
     stream.close()
     p.terminate()
 
+def sigintHandler(*args):
+    sys.stderr.write('\r')
+    print args
+    # if QtGui.QMessageBox.question(None, '', "Are you sure you want to quit?",
+    #                         QtGui.QMessageBox.Yes | QtGui.QMessageBox.No,
+    #                         QtGui.QMessageBox.No) == QtGui.QMessageBox.No:
+    #     return
+    QtGui.QApplication.quit()
 
 def main():
     loadNoise()
+
+    signal.signal(signal.SIGINT, sigintHandler)
     app = QtGui.QApplication(sys.argv)
     display = ThreaderParent()
     app.exec_()
