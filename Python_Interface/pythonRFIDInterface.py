@@ -163,8 +163,28 @@ class mainWindow(QtGui.QMainWindow):
 
         # DATABASE READER OPTIONS
         changeDatabase = QtGui.QAction(QtGui.QIcon(""), 'Open New Database', self)
-        #changeDatabase.setShortcut("")
+        changeDatabase.setShortcut("Ctrl+D")
         changeDatabase.setStatusTip('Open a different default databse file')
+
+        exportDatabse = QtGui.QAction(QtGui.QIcon(""), 'Export Database', self)
+        exportDatabse.setShortcut("Ctrl+E")
+        exportDatabse.setStatusTip('Export the database to another location')
+
+        importDatabase = QtGui.QAction(QtGui.QIcon(""), 'Import Database', self)
+        importDatabase.setShortcut("Ctrl+I")
+        importDatabase.setStatusTip('import another database into your current database')
+
+        allowRFIDModification = QtGui.QAction(QtGui.QIcon(""), "Allow RFID Modification", self)
+        allowRFIDModification.setStatusTip('Allow the user to modify the RFID tag of database element')
+
+        deleteDatabaseElement = QtGui.QAction(QtGui.QIcon(""), "Delete Databse Element", self)
+        deleteDatabaseElement.setStatusTip('Delete a single element of the database')
+
+        # Reader Options
+        readerAutoConnect = QtGui.QAction(QtGui.QIcon(""), 'Enable Auto Connect', self)
+        #readerAutoConnect.setShortcut("")
+        readerAutoConnect.setStatusTip('Enable the program to auto detect and connect to a reader')
+
 
         # HELP MENU OPTIONS
         viewOnlineHelp = QtGui.QAction(QtGui.QIcon(""),'View Online Help', self)
@@ -183,8 +203,13 @@ class mainWindow(QtGui.QMainWindow):
 
         databaseMenu = menubar.addMenu('&Database')
         databaseMenu.addAction(changeDatabase)
+        databaseMenu.addAction(exportDatabse)
+        databaseMenu.addAction(importDatabase)
+        databaseMenu.addAction(allowRFIDModification)
+        databaseMenu.addAction(deleteDatabaseElement)
 
         self.rfidReaderMenu = menubar.addMenu("&Reader")
+        self.rfidReaderMenu.addAction(readerAutoConnect)
         self.rfidReaderList = self.rfidReaderMenu.addMenu("&Manual Connect")
 
         helpMenu = menubar.addMenu("&Help")
