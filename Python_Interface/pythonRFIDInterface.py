@@ -166,10 +166,6 @@ class mainWindow(QtGui.QMainWindow):
         saveAttendance.triggered.connect(self.saveAttendanceSheet)
 
         # DATABASE READER OPTIONS
-        changeDatabase = QtGui.QAction(QtGui.QIcon(""), 'Open New Database', self)
-        changeDatabase.setShortcut("Ctrl+D")
-        changeDatabase.setStatusTip('Open a different default databse file')
-
         exportDatabse = QtGui.QAction(QtGui.QIcon(""), 'Export Database', self)
         exportDatabse.setShortcut("Ctrl+E")
         exportDatabse.setStatusTip('Export the database to another location')
