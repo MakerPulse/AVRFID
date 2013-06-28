@@ -87,7 +87,7 @@ class aboutWidget(QtGui.QWidget):
         self.inputvlayout.addStretch(1)
 
         # Create the domain text box
-        lbl1 = QtGui.QLabel('<qt><b style="font-size:40px">AVRFID Client</b><br><i>Copyright \xa9 2012-2013 MakerPulse</i><br></qt>', self)
+        lbl1 = QtGui.QLabel('<qt><b style="font-size:40px">AVRFID Client</b><br><i>Copyright \xa9 2012-2013 MakerPulse</i><br><br>Version 3.0 Beta<br></qt>', self)
         lbl1.setAlignment(QtCore.Qt.AlignCenter)
         self.inputvlayout.addWidget(lbl1)
 
