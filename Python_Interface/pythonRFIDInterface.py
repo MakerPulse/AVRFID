@@ -568,16 +568,16 @@ class ThreaderParent:
             for port in currentPorts:
                 if port not in self.openPorts:
                     newPorts.append(port)
-                    print "NEW PORT:", port
+                    p#rint "NEW PORT:", port
                     self.thread.append(threading.Thread(target=self.workerThread, args=(port,)))
                     self.thread[-1].start()
 
-            # find all removed ports
-            closedPorts = []
-            for port in self.openPorts:
-                if port not in currentPorts:
-                    closedPorts.append(port)
-                    print "CLOSED PORT:", port
+            # # find all removed ports
+            # closedPorts = []
+            # for port in self.openPorts:
+            #     if port not in currentPorts:
+            #         closedPorts.append(port)
+            #         print "CLOSED PORT:", port
 
             # set the current ports to the open ports
             if self.openPorts != currentPorts:
@@ -606,24 +606,31 @@ class ThreaderParent:
     def workerThread(self, serialPort, serialName="", serialVIN=""):
         try:
             serialConnection = serial.Serial(port=serialPort, baudrate=serialBaud, timeout=0)
+        except serial.serialutil.SerialException as e:
+            print e
+            return
         except Exception as e:
             print type(e)
+            print e.errno
             print e
             print "ERROR INITILIZING THE CONNECTION TO", serialPort, "CLOSING THREAD"
             return
 
         self.workerqueue.put("Starting Worker For:"+serialPort)
 
-        print "STARTING WORKER THREAD:"
-        print " WORKER PORT:", serialPort
-        print " WORKER NAME:", serialName
-        print " WORKER VIN:", serialVIN
+        #print "STARTING WORKER THREAD:"
+        #print " WORKER PORT:", serialPort
+        #print " WORKER NAME:", serialName
+        #print " WORKER VIN:", serialVIN
         fulltag = ""
         while self.running:
             try:
                 tag = serialConnection.read()
             except serial.serialutil.SerialException as e:
-                print "Serial exception occured"
+                if str(e) == "device reports readiness to read but returned no data (device disconnected?)":
+                    print "Device on "+serialPort+" Disconnected:"
+                else:
+                    print "Unknown Serial Error Occured on "+serialPort+": "+e
                 break
             except Exception as e:
                 print type(e)
@@ -639,7 +646,7 @@ class ThreaderParent:
                 continue
             fulltag += tag
 
-        self.workerqueue.put("Ending Worker For:"+serialPort)
+        self.workerqueue.put(("Ending Worker For: ",serialPort)
 
 ## the main function ##
 
