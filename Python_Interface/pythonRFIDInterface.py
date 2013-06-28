@@ -61,6 +61,7 @@ import itertools
 #import serial.tools.list_ports
 import glob
 from PyQt4 import QtGui, QtCore
+from functools import partial
 
 from newPersonWidget import newPersonWidget
 
@@ -539,17 +540,25 @@ class ThreaderParent:
         self.workerqueue = Queue.Queue()
 
 
+    def connectToSerialPort(self, port):
+        print port
+        self.thread.append(threading.Thread(target=self.workerThread, args=(port,)))
+        self.thread[-1].start()
 
     def refreshSerialList(self, portList, connectedList):
         self.gui.rfidReaderList.clear()
         for (index, port) in enumerate(self.openPorts):
             menuItemName = "Connect To " + port
             menuItemIcon = "icons/unchecked.png"
+            onClickFunction = partial(self.connectToSerialPort,port)
             if port in connectedList:
                 menuItemName = "Disconnect From " + port
                 menuItemIcon = "icons/checked.png"
 
             serialPort = QtGui.QAction(QtGui.QIcon(menuItemIcon), menuItemName, self.gui)
+
+            serialPort.triggered.connect(onClickFunction)
+
             #if index < 10:
             #    serialPort.setShortcut("Ctrl+"+str(index))
             self.gui.rfidReaderList.addAction(serialPort)
@@ -571,9 +580,8 @@ class ThreaderParent:
             for port in currentPorts:
                 if port not in self.openPorts:
                     newPorts.append(port)
-                    p#rint "NEW PORT:", port
-                    self.thread.append(threading.Thread(target=self.workerThread, args=(port,)))
-                    self.thread[-1].start()
+                    #print "NEW PORT:", port
+                    self.connectToSerialPort(port)
 
             # # find all removed ports
             # closedPorts = []
