@@ -537,6 +537,8 @@ class ThreaderParent:
 
         self.workerqueue = Queue.Queue()
 
+        self.connectedPorts = []
+
     def refreshSerialList(self, portList, connectedList):
         self.gui.rfidReaderList.clear()
         for (index, port) in enumerate(self.openPorts):
@@ -586,7 +588,14 @@ class ThreaderParent:
 
             # Cycle through the queue
             while not self.workerqueue.empty():
-                print self.workerqueue.get()
+                (action, port) = self.workerqueue.get()
+                if action == 'close':
+                    self.connectedPorts.remove(port)
+                elif action == 'open':
+                    self.connectedPorts.append(port)
+
+                print "CURRENTLY OPEN PORTS ARE:"
+                print self.connectedPorts
 
     ################################ END APPLICATION ###############################
     # This function should be called by the QT main window class when the QT       #
@@ -616,7 +625,7 @@ class ThreaderParent:
             print "ERROR INITILIZING THE CONNECTION TO", serialPort, "CLOSING THREAD"
             return
 
-        self.workerqueue.put("Starting Worker For:"+serialPort)
+        self.workerqueue.put(("open",serialPort))
 
         #print "STARTING WORKER THREAD:"
         #print " WORKER PORT:", serialPort
@@ -646,7 +655,7 @@ class ThreaderParent:
                 continue
             fulltag += tag
 
-        self.workerqueue.put(("Ending Worker For: ",serialPort)
+        self.workerqueue.put(("close", serialPort))
 
 ## the main function ##
 
