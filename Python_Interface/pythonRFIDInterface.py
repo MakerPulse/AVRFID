@@ -121,6 +121,12 @@ class mainWindow(QtGui.QMainWindow):
 
         self.initUI()
 
+        self.connect(self, QtCore.SIGNAL('triggered()'), self.closeEvent)
+
+    def closeEvent(self, event):
+        event.ignore()
+        self.closeApp()
+
     #################################### INIT UI ###################################
     # A wraper function for init menu that also sets the main widget of the        #
     # QMainWindow and sizes window itself                                          #
@@ -188,6 +194,7 @@ class mainWindow(QtGui.QMainWindow):
 
         # HELP MENU OPTIONS
         viewOnlineHelp = QtGui.QAction(QtGui.QIcon(""),'View Online Help', self)
+        viewOnlineHelp.setEnabled(False)
         aboutAvrfid = QtGui.QAction(QtGui.QIcon(""), 'About...', self)
         aboutAvrfid.triggered.connect(self.openHelp)
 
@@ -202,7 +209,6 @@ class mainWindow(QtGui.QMainWindow):
         fileMenu.addAction(saveAttendance)
 
         databaseMenu = menubar.addMenu('&Database')
-        databaseMenu.addAction(changeDatabase)
         databaseMenu.addAction(exportDatabse)
         databaseMenu.addAction(importDatabase)
         databaseMenu.addAction(allowRFIDModification)
@@ -232,9 +238,11 @@ class mainWindow(QtGui.QMainWindow):
     # window                                                                       #
     ################################################################################
     def closeApp(self):
-        reallyQuit = QtGui.QMessageBox.question(self, 'Message', "Are you sure to quit?", QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
-        if reallyQuit == QtGui.QMessageBox.Yes:
-            QtCore.QCoreApplication.instance().quit()
+        if self.sheetModified:
+            reallyQuit = QtGui.QMessageBox.question(self, 'Message', "Are you sure to quit?", QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
+            if reallyQuit == QtGui.QMessageBox.No:
+                return
+        QtCore.QCoreApplication.instance().quit()
 
     ############################### NEW PERSON POPUP ###############################
     # The new person function creates a new person window and allows the user to   #
