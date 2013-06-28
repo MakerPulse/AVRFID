@@ -536,6 +536,7 @@ class ThreaderParent:
         self.openPorts = scanPorts()
         self.refreshSerialList(self.openPorts, self.connectedPorts)
         self.thread = []
+        self.quitList = []
 
         self.workerqueue = Queue.Queue()
 
@@ -544,6 +545,10 @@ class ThreaderParent:
         print port
         self.thread.append(threading.Thread(target=self.workerThread, args=(port,)))
         self.thread[-1].start()
+
+    def disconnectFromSerialPort(self, port):
+        # add this port to the list of threads that need to quit
+        self.quitList.append(port)
 
     def refreshSerialList(self, portList, connectedList):
         self.gui.rfidReaderList.clear()
@@ -554,6 +559,7 @@ class ThreaderParent:
             if port in connectedList:
                 menuItemName = "Disconnect From " + port
                 menuItemIcon = "icons/checked.png"
+                onClickFunction = partial(self.disconnectFromSerialPort,port)
 
             serialPort = QtGui.QAction(QtGui.QIcon(menuItemIcon), menuItemName, self.gui)
 
@@ -599,8 +605,12 @@ class ThreaderParent:
             while not self.workerqueue.empty():
                 (action, port) = self.workerqueue.get()
                 if action == 'close':
+                    print port, "Closed"
                     self.connectedPorts.remove(port)
+                    if port in self.quitList:
+                        self.quitList.remove(port)
                 elif action == 'open':
+                    print port, "Opened"
                     self.connectedPorts.append(port)
 
                 self.refreshSerialList(self.openPorts, self.connectedPorts)
@@ -642,7 +652,7 @@ class ThreaderParent:
         #print " WORKER NAME:", serialName
         #print " WORKER VIN:", serialVIN
         fulltag = ""
-        while self.running and running:
+        while self.running and serialPort not in self.quitList:
             try:
                 tag = serialConnection.read()
             except serial.serialutil.SerialException as e:
