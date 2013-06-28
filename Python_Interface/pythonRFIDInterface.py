@@ -606,8 +606,9 @@ class ThreaderParent:
     def workerThread(self, serialPort, serialName="", serialVIN=""):
         try:
             serialConnection = serial.Serial(port=serialPort, baudrate=serialBaud, timeout=0)
-        except Exception:
-            print Exception
+        except Exception as e:
+            print type(e)
+            print e
             print "ERROR INITILIZING THE CONNECTION TO", serialPort, "CLOSING THREAD"
             return
 
@@ -621,7 +622,12 @@ class ThreaderParent:
         while self.running:
             try:
                 tag = serialConnection.read()
-            except:
+            except serial.serialutil.SerialException as e:
+                print "Serial exception occured"
+                break
+            except Exception as e:
+                print type(e)
+                print e
                 print "ERROR READING FROM ", serialPort, "CLOSING THREAD"
                 break
             if (tag == '\n'):
