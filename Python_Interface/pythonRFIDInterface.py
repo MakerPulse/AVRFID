@@ -174,21 +174,28 @@ class mainWindow(QtGui.QMainWindow):
         # DATABASE READER OPTIONS
         exportDatabse = QtGui.QAction(QtGui.QIcon(""), 'Export Database', self)
         exportDatabse.setShortcut("Ctrl+E")
+        exportDatabse.setEnabled(False)
         exportDatabse.setStatusTip('Export the database to another location')
 
         importDatabase = QtGui.QAction(QtGui.QIcon(""), 'Import Database', self)
         importDatabase.setShortcut("Ctrl+I")
+        importDatabase.setEnabled(False)
         importDatabase.setStatusTip('import another database into your current database')
 
         allowRFIDModification = QtGui.QAction(QtGui.QIcon(""), "Allow RFID Modification", self)
+        allowRFIDModification.setEnabled(False)
         allowRFIDModification.setStatusTip('Allow the user to modify the RFID tag of database element')
 
         deleteDatabaseElement = QtGui.QAction(QtGui.QIcon(""), "Delete Databse Element", self)
+        deleteDatabaseElement.setEnabled(False)
         deleteDatabaseElement.setStatusTip('Delete a single element of the database')
 
         # Reader Options
-        readerAutoConnect = QtGui.QAction(QtGui.QIcon(""), 'Enable Auto Connect', self)
+        readerAutoConnect = QtGui.QAction(QtGui.QIcon(""), 'Auto Connect', self)
         #readerAutoConnect.setShortcut("")
+        readerAutoConnect.setEnabled(False)
+        readerAutoConnect.setCheckable(True)
+        readerAutoConnect.setChecked(True)
         readerAutoConnect.setStatusTip('Enable the program to auto detect and connect to a reader')
 
 
@@ -564,9 +571,7 @@ class ThreaderParent:
                 menuItemName = "Disconnect From " + port
                 menuItemIcon = "icons/checked.png"
                 onClickFunction = partial(self.disconnectFromSerialPort,port)
-
             serialPort = QtGui.QAction(QtGui.QIcon(menuItemIcon), menuItemName, self.gui)
-
             serialPort.triggered.connect(onClickFunction)
 
             #if index < 10:
