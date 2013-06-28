@@ -519,6 +519,7 @@ class ThreaderParent:
         print "WTHAT HE HELL"
         # create a queue for message passing
         self.tagqueue = Queue.Queue()
+        self.connectedPorts = []
         print "CREATED QUEUE"
         #instanciate the gui
         self.gui = mainWindow(self.tagqueue, self.endApplication)
@@ -532,12 +533,12 @@ class ThreaderParent:
         # Create a thread to read the serial port
         self.running = 1
         self.openPorts = scanPorts()
-        self.refreshSerialList(self.openPorts, ["/dev/ttyS4"])
+        self.refreshSerialList(self.openPorts, self.connectedPorts)
         self.thread = []
 
         self.workerqueue = Queue.Queue()
 
-        self.connectedPorts = []
+
 
     def refreshSerialList(self, portList, connectedList):
         self.gui.rfidReaderList.clear()
@@ -584,7 +585,7 @@ class ThreaderParent:
             # set the current ports to the open ports
             if self.openPorts != currentPorts:
                 self.openPorts = currentPorts
-                self.refreshSerialList(currentPorts, ["/dev/ttyS4"])
+                self.refreshSerialList(currentPorts, self.connectedPorts)
 
             # Cycle through the queue
             while not self.workerqueue.empty():
@@ -594,8 +595,8 @@ class ThreaderParent:
                 elif action == 'open':
                     self.connectedPorts.append(port)
 
-                print "CURRENTLY OPEN PORTS ARE:"
-                print self.connectedPorts
+                self.refreshSerialList(self.openPorts, self.connectedPorts)
+
 
     ################################ END APPLICATION ###############################
     # This function should be called by the QT main window class when the QT       #
@@ -613,6 +614,7 @@ class ThreaderParent:
     # handle it                                                                    #
     ################################################################################
     def workerThread(self, serialPort, serialName="", serialVIN=""):
+        running = self.running
         try:
             serialConnection = serial.Serial(port=serialPort, baudrate=serialBaud, timeout=0)
         except serial.serialutil.SerialException as e:
@@ -632,7 +634,7 @@ class ThreaderParent:
         #print " WORKER NAME:", serialName
         #print " WORKER VIN:", serialVIN
         fulltag = ""
-        while self.running:
+        while self.running and running:
             try:
                 tag = serialConnection.read()
             except serial.serialutil.SerialException as e:
