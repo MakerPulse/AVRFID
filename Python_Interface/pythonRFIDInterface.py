@@ -496,7 +496,7 @@ class mainWidget(QtGui.QWidget):
             if (tag in self.IDRelation):
                 name = self.IDRelation[tag]
             else:
-                name = "Unknown Tag "+i
+                name = "Unknown Tag " + tag
             item = QtGui.QListWidgetItem("%s" % (name))
             item.rfidTag = tag
             self.tagListWidget.addItem(item)
