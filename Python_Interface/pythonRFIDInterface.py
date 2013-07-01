@@ -721,7 +721,6 @@ def playNoise():
     thread = threading.Thread(target=playNoise_Thread)
     thread.start()
 
-
 def playNoise_Thread():
 
     wf = wave.open("ping.wav", 'rb')
@@ -740,6 +739,7 @@ def playNoise_Thread():
 
     wf.close()
     stream.stop_stream()
+    stream.close()
 
 
 def loadNoise():
