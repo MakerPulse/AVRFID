@@ -585,7 +585,7 @@ class ThreaderParent:
     def periodicCall(self):
         self.gui.readQueue()
         if not self.running:
-            root.quit()
+            quit()
         else:
             # get the current list of serial divices
             currentPorts = scanPorts()
