@@ -723,9 +723,16 @@ def playNoise():
 
 
 def playNoise_Thread():
-    stream.start_stream()
 
     wf = wave.open("ping.wav", 'rb')
+
+    stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
+                    channels=wf.getnchannels(),
+                    rate=wf.getframerate(),
+                    output=True)
+
+    stream.start_stream()
+
     data = wf.readframes(CHUNK)
     while data != '':
         stream.write(data)
@@ -737,19 +744,9 @@ def playNoise_Thread():
 
 def loadNoise():
     global p
-    global stream
-
-    wf = wave.open("ping.wav", 'rb')
     p = pyaudio.PyAudio()
-    stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
-                    channels=wf.getnchannels(),
-                    rate=wf.getframerate(),
-                    output=True)
-    wf.close()
-
 
 def endNoise():
-    stream.close()
     p.terminate()
 
 def sigintHandler(*args):
